@@ -1,0 +1,206 @@
+<app-breadcrumbs></app-breadcrumbs>
+<div class="page-content">
+    <div class="page-header center" style="padding-top: 30px;">
+        <h1>
+            -:- สำนักงานสาธารณสุขจังหวัดชัยภูมิ -:-
+        </h1>
+    </div><!-- /.page-header -->
+    <div class="row action-buttons">
+        <div class="col-xs-12">
+            <div *ngIf="authGuard2" id="app-test">
+                <h4 class="header smaller lighter orange">
+                    <i class="fa fa-th" aria-hidden="true"></i>
+                    ระบบเปิดให้ทดลองใช้งาน
+                </h4>
+                <p></p>
+                <div class="container">
+                    <a href="javacript:void(0)" [routerLink]="['/apps/letter']">
+                        <div class="infobox infobox-orange infobox-medium infobox-dark">
+                            <div class="infobox-icon">
+                                <i class="ace-icon fa fa-book"></i>
+                            </div>
+                            <div class="infobox-data">
+                                <div class="infobox-content">ระบบ</div>
+                                <div class="infobox-content">หนังสือเวียนภายนอก</div>
+                            </div>
+                        </div>
+                    </a>
+                    <a *ngIf="authGuard3" href="javacript:void(0)" [routerLink]="['/apps/go-to-government']">
+                        <div class="infobox infobox-orange infobox-medium infobox-dark">
+                            <div class="infobox-icon">
+                                <i class="ace-icon fa fa-send"></i>
+                            </div>
+                            <div class="infobox-data">
+                                <div class="infobox-content">ระบบ</div>
+                                <div class="infobox-content">บันทึกขออนุมัติไปราชการ</div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="space-12"></div>
+            </div>
+            <div id="app">
+                <h4 class="header smaller lighter green">
+                    <i class="fa fa-th" aria-hidden="true"></i>
+                    ระบบต่างๆ
+                </h4>
+                <p></p>
+                <div class="container">
+                    <a href="javacript:void(0)" [routerLink]="['/apps/meeting']">
+                        <div class="infobox infobox-green infobox-medium infobox-dark">
+                            <div class="infobox-icon">
+                                <i class="ace-icon fa fa-calendar"></i>
+                            </div>
+                            <div class="infobox-data">
+                                <div class="infobox-content">ระบบ</div>
+                                <div class="infobox-content">จองห้องประชุมออนไลน์</div>
+                            </div>
+                        </div>
+                    </a>
+                    <a href="javacript:void(0)" [routerLink]="['/apps/esalary']">
+                        <div class="infobox infobox-green infobox-medium infobox-dark">
+                            <div class="infobox-icon">
+                                <i class="ace-icon fa-solid fa-file-invoice-dollar"></i>
+                            </div>
+                            <div class="infobox-data">
+                                <div class="infobox-content">ระบบ</div>
+                                <div class="infobox-content">สลิปเงินเดือนออนไลน์</div>
+                            </div>
+                        </div>
+                    </a>
+                    <a href="javacript:void(0)" [routerLink]="['/apps/tax']">
+                        <div class="infobox infobox-green infobox-medium infobox-dark">
+                            <div class="infobox-icon">
+                                <i class="ace-icon fa fa-file-text"></i>
+                            </div>
+                            <div class="infobox-data">
+                                <div class="infobox-content">ระบบ</div>
+                                <div class="infobox-content">หนังสือรับรองการหักภาษี</div>
+                            </div>
+                        </div>
+                    </a>
+                    <!-- <a *ngIf="authGuard2" href="javacript:void(0)" [routerLink]="['/apps/letter']">
+                        <div class="infobox infobox-green infobox-medium infobox-dark">
+                            <div class="infobox-icon">
+                                <i class="ace-icon fa fa-book"></i>
+                            </div>
+                            <div class="infobox-data">
+                                <div class="infobox-content">ระบบ</div>
+                                <div class="infobox-content">หนังสือเวียนภายนอก</div>
+                            </div>
+                        </div>
+                    </a> -->
+                    <a *ngIf="authGuard3" href="javacript:void(0)" [routerLink]="['/apps/eleave']">
+                        <div class="infobox infobox-green infobox-medium infobox-dark">
+                            <div class="infobox-icon">
+                                <i class="ace-icon fa fa-envelope"></i>
+                            </div>
+                            <div class="infobox-data">
+                                <div class="infobox-content">ระบบ</div>
+                                <div class="infobox-content">ยื่นใบลาออนไลน์</div>
+                            </div>
+                        </div>
+                    </a>
+                    <!-- <a *ngIf="authGuard3" href="javacript:void(0)" [routerLink]="['/apps/eleave']">
+                        <div class="infobox infobox-green infobox-medium infobox-dark">
+                            <div class="infobox-icon">
+                                <i class="ace-icon fa fa-send"></i>
+                            </div>
+                            <div class="infobox-data">
+                                <div class="infobox-content">ระบบ</div>
+                                <div class="infobox-content">หนังสือขออนุมัติไปราชการ</div>
+                            </div>
+                        </div>
+                    </a> -->
+                </div>
+                <div class="space-12"></div>
+            </div>
+            <div id="report" *ngIf="authGuard3">
+                <h4 class="header smaller lighter blue">
+                    <i class="fa fa-bar-chart" aria-hidden="true"></i>
+                    รายงาน
+                </h4>
+                <p></p>
+                <div class="container">
+                    <a href="javacript:void(0)" [routerLink]="['/reports/timestamp']">
+                        <div class="infobox infobox-blue infobox-medium infobox-dark">
+                            <div class="infobox-icon">
+                                <i class="ace-icon fa fa-clock-o"></i>
+                            </div>
+                            <div class="infobox-data">
+                                <div class="infobox-content">รายงาน</div>
+                                <div class="infobox-content">ลงเวลาปฏิบัติงาน</div>
+                            </div>
+                        </div>
+                    </a>
+                    <a href="javacript:void(0)" [routerLink]="['/reports/schedule']">
+                        <div class="infobox infobox-blue infobox-medium infobox-dark">
+                            <div class="infobox-icon">
+                                <i class="ace-icon fa fa-calendar-check-o"></i>
+                            </div>
+                            <div class="infobox-data">
+                                <div class="infobox-content">รายงาน</div>
+                                <div class="infobox-content">ตารางรายชื่ออยู่เวร</div>
+                            </div>
+                        </div>
+                    </a>
+                    <a href="javacript:void(0)" [routerLink]="['/reports/eleave']">
+                        <div class="infobox infobox-blue infobox-medium infobox-dark">
+                            <div class="infobox-icon">
+                                <i class="ace-icon fa fa-line-chart"></i>
+                            </div>
+                            <div class="infobox-data">
+                                <div class="infobox-content">รายงาน</div>
+                                <div class="infobox-content">สถิติการลาออนไลน์</div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="space-12"></div>
+            </div>
+            <div id="setting">
+                <h4 class="header smaller lighter red">
+                    <i class="fa fa-cogs" aria-hidden="true"></i>
+                    ตั้งค่า
+                </h4>
+                <p></p>
+                <div class="container">
+                    <a href="javacript:void(0)" [routerLink]="['/settings/hospital']">
+                        <div class="infobox infobox-red infobox-medium infobox-dark">
+                            <div class="infobox-icon">
+                                <i class="ace-icon fa fa-hospital-o"></i>
+                            </div>
+                            <div class="infobox-data">
+                                <div class="space-8"></div>
+                                <div class="infobox-content">จัดการสถานที่ปฏิบัติงาน</div>
+                            </div>
+                        </div>
+                    </a>
+                    <a href="javacript:void(0)" [routerLink]="['/settings/position']">
+                        <div class="infobox infobox-red infobox-medium infobox-dark">
+                            <div class="infobox-icon">
+                                <i class="ace-icon fa fa-address-book-o"></i>
+                            </div>
+                            <div class="infobox-data">
+                                <div class="space-8"></div>
+                                <div class="infobox-content">จัดการตำแหน่งงาน</div>
+                            </div>
+                        </div>
+                    </a>
+                    <a href="javacript:void(0)" [routerLink]="['/settings/profile']">
+                        <div class="infobox infobox-red infobox-medium infobox-dark">
+                            <div class="infobox-icon">
+                                <i class="ace-icon fa fa-user-circle-o"></i>
+                            </div>
+                            <div class="infobox-data">
+                                <div class="space-8"></div>
+                                <div class="infobox-content">จัดการโปรไฟล์</div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="space-24"></div>
+            </div>
+        </div><!-- /.col -->
+    </div><!-- /.row -->
+</div><!-- /.page-content -->

@@ -1,0 +1,211 @@
+<div *ngIf="loading" class="widget-box-overlay">
+    <i class="ace-icon loading-xx loading-icon fa fa-spinner fa-pulse fa-3x fa-fw white" style="top: 50%;"></i>
+</div>
+<app-breadcrumbs [subTitle]="'ระบบพิมพ์สลิปเงินเดือนออนไลน์'"></app-breadcrumbs>
+<div *ngIf="decode" class="page-content center">
+    <div class="page-header center" style="padding-top: 30px;">
+        <h1>
+            <i class="menu-icon fa fa-print"></i>
+            ระบบพิมพ์สลิปเงินเดือนออนไลน์
+        </h1>
+        <p></p>
+        -:- สำนักงานสาธารณสุขจังหวัดชัยภูมิ -:-
+        <div [hidden]="!getPdf" class="row">
+            <div class="space-6"></div>
+            <div class="col-xs-4 col-sm-4 col-md-4 center">
+                <button (click)="onBack()" type="button" class="center btn btn-xs btn-default">
+                    <i class="ace-icon fa fa-hand-o-left"></i>
+                    <span class="bigger-110"> กลับ</span>
+                </button>
+            </div>
+            <div class="col-xs-4 col-sm-4 col-md-4 center">
+                <button (click)="onDownload()" type="button" class="center btn btn-xs btn-success">
+                    <i class="ace-icon fa fa-download"></i>
+                    <span class="bigger-110"> ดาวน์โหลด</span>
+                </button>
+            </div>
+            <div class="col-xs-4 col-sm-4 col-md-4 center">
+                <button (click)="onPrint()" type="button" class="center btn btn-xs btn-primary">
+                    <i class="ace-icon fa fa-print"></i>
+                    <span class="bigger-110"> พิมพ์</span>
+                </button>
+            </div>
+        </div>
+    </div><!-- /.page-header -->
+    <div [hidden]="getPdf" class="row">
+        <div class="col-xs-12">
+            <div class="row">
+                <div class="space-6"></div>
+                <h4>@สวัสดี {{ decode.prename }}{{ decode.fname }} {{ decode.lname }}</h4>
+            </div><!-- /.row -->
+            <div *ngIf="decode.hosptype=='01'" class="row">
+                <div class="space-6"></div>
+                <span *ngIf="!adminPage">
+                    [ <a href="javascript:void(0);" (click)="staff()">สำหรับเจ้าหน้าที่</a> ]
+                </span>
+                <span *ngIf="adminPage">
+                    [ <a href="javascript:void(0);" (click)="modalStaff()">นำเข้าข้อมูลเงินเดือน</a> ]
+                </span>
+            </div><!-- /.row -->
+            <div class="row">
+                <div class="space-6"></div>
+                <h4>กรุณาเลือก ปีและเดือน ที่คุณต้องการดูเงินเดือน</h4>
+            </div><!-- /.row -->
+            <div class="col-sm-10 col-sm-offset-1">
+                <form enctype="multipart/form-data" class="form-horizontal" (ngSubmit)="onSubmit()">
+                    <div class="login-container">
+                        <div class="position-relative">
+                            <div class="space-6"></div>
+                            <div *ngIf="adminPage" class="row center">
+                                <div class="space-6"></div>
+                                ​​​[ <a href="javascript:void(0);" (click)="logout()">ออกจาก Admin</a> ]
+                                <br>
+                                <label for="form-field-select-1"> เลขประจำตัวประชาชน: </label>
+                                <label class="block clearfix" style="margin:0 40px;">
+                                    <span class="block input-icon input-icon-right">
+                                        <input (keypress)="main.isNumberKey($event)" [(ngModel)]="cid" name="cid"
+                                            id="cid" type="cid" (blur)="getYear(cid)" (change)="getYear(cid)"
+                                            class="form-control" placeholder="เลขประจำตัวประชาชน" autofocus
+                                            style="text-align: center;" />
+                                        <i class="ace-icon fa fa-id-card"></i>
+                                    </span>
+                                </label>
+                            </div>
+                            <div class="row">
+                                <div class="space-6"></div>
+                                <label for="form-field-select-1"> ปี: </label>
+                                <label class="block clearfix" style="margin:0 40px;">
+                                    <select (change)="onYear(year)" [(ngModel)]="year" name="year" id="year"
+                                        class="form-control" style="width: 100%; text-align-last:center;">
+                                        <!-- <option value="" disabled="disabled">== กรุณาเลือกปี พ.ศ. ==</option> -->
+                                        <option *ngFor="let y of arrYear" [value]="y.year">
+                                            {{ y.year }}
+                                        </option>
+                                    </select>
+                                </label>
+                            </div>
+                            <div class="row">
+                                <div class="space-6"></div>
+                                <label for="form-field-select-1"> เดือน: </label>
+                                <label class="block clearfix" style="margin:0 40px;">
+                                    <select [(ngModel)]="month" name="month" id="month" class="form-control"
+                                        style="width: 100%; text-align-last:center;">
+                                        <option *ngFor="let m of arrMonth" [value]="m.month">
+                                            {{ main.arrMonthTxt[toNumber(m.month)-1] }}
+                                        </option>
+                                    </select>
+                                </label>
+                            </div>
+                            <div class="row">
+                                <div class="space-24"></div>
+                                <fieldset class="col-xs-6 col-sm-6 col-md-6">
+                                    <button (click)="onReset()" type="button" class="pull-right btn btn-sm btn-default">
+                                        <i class="ace-icon fa fa-refresh"></i>
+                                        <span class="bigger-110">รีเซ็ต</span>
+                                    </button>
+                                </fieldset>
+                                <fieldset class="col-xs-6 col-sm-6 col-md-6">
+                                    <button type="submit" class="pull-left btn btn-sm btn-primary">
+                                        <i class="ace-icon fa fa-print"></i>
+                                        <span class="bigger-110">ตกลง</span>
+                                    </button>
+                                </fieldset>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div><!-- /.col -->
+        <div class="col-xs-12">
+            <div class="space-24"></div>
+            <b>หมายเหตุ:</b> ระบบนี้สามารถใช้ได้เฉพาะบุคคลที่เป็น ข้าราชการ, ลูกจ้างประจำ และ พนักงานราชการ เท่านั้น!
+        </div>
+    </div><!-- /.row -->
+    <div [hidden]="!getPdf" class="row">
+        <div class="col-xs-12">
+            <div class="col-sm-10 col-sm-offset-1" style="border-style: dashed; border: width 5px;">
+                <!-- <iframe src="" width="100%" height="800"></iframe> -->
+                <pdf-viewer [src]="pdfFile" [original-size]="false" [show-borders]="true"></pdf-viewer>
+            </div>
+        </div>
+    </div>
+    <div class="space-12"></div>
+</div>
+
+<div class="modal fade" id="modal-staff">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form enctype="multipart/form-data" class="form-horizontal">
+                <div class="modal-header green">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h2 class="modal-title center">
+                        <i class="fa fa-upload" aria-hidden="true"></i>
+                        นำเข้าข้อมูลเงินเดือน
+                    </h2>
+                </div>
+                <div class="modal-body">
+                    <div class="form-heading" style="margin: 0 50px;">
+                        <h4>เงื่อนไขในการ Upload ไฟล์</h4>
+                        <ul>
+                            <li>
+                                ไฟล์ที่จะส่งเข้ามาต้องเป็นประเภท Excel หรือ Text ไฟล์ เท่านั้น
+                            </li>
+                            <li>
+                                ขนาดของไฟล์ที่ส่ง ต้องมีขนาดไม่เกิน 8 Mb
+                            </li>
+                            <li>
+                                และในไฟล์ txt จะต้องมีเครื่องหมาย $ คั้นระหว่างฟิลด์
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="form-body center">
+                        <div class="pair-group" align="center">
+                            <div class="space-12"></div>
+                            <legend style="font-size:16px; color:#333">เลือกประเภทการนำเข้าฐานข้อมูล :</legend>
+                            <div class="form-group" [class.radio-has-error]="hasRadio">
+                                <label class="col-xs-4 col-sm-4">
+                                    <input (click)="onRadio()" [(ngModel)]="positiontype" type="radio" value="1"
+                                        name="positiontype">
+                                    ข้าราชการ
+                                </label>
+                                <label class="col-xs-4 col-sm-4">
+                                    <input (click)="onRadio()" [(ngModel)]="positiontype" type="radio" value="2"
+                                        name="positiontype">
+                                    ลูกจ้างประจำ
+                                </label>
+                                <label class="col-xs-4 col-sm-4">
+                                    <input (click)="onRadio()" [(ngModel)]="positiontype" type="radio" value="3"
+                                        name="positiontype">
+                                    พนักงานราชการ
+                                </label>
+                            </div>
+                            <div id="showText"></div>
+                            <div class="space-12"></div>
+                            <span *ngIf="!uploading" id="bntUpload" class="form-group" [class.has-error]="hasMyfile">
+                                <input #myfile (change)="fileProgress(myfile.files)" type="file" name="myfile"
+                                    [accept]="(positiontype == '3') ? '.xlsx,.xls' : '.txt'" class="btn btn-default"
+                                    [disabled]="!positiontype" required="required">
+                                <span *ngIf="hasMyfile" class="help-block col-xs-12 col-sm-reset inline">
+                                    {{ txtMyfileError || 'คุณไม่ได้เลือกไฟล์เพื่อ Upload' }}
+                                </span>
+                            </span>
+                            <div *ngIf="uploading" class="progress progress-striped active" style="width: 60%">
+                                <div class="progress-bar progress-bar-success" style="width: 100%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer center">
+                    <button (click)="onUpload()" id="btn-upload" type="submit" class="btn btn-sm btn-success">
+                        <i class="fa fa-cloud-upload" aria-hidden="true"></i>
+                        Upload File
+                    </button>
+                </div>
+            </form>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>

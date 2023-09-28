@@ -1,0 +1,258 @@
+<div *ngIf="loading" class="widget-box-overlay">
+    <i class="ace-icon loading-xx loading-icon fa fa-spinner fa-pulse fa-3x fa-fw white" style="top: 50%;"></i>
+</div>
+<app-breadcrumbs [subTitle]="'รายงานสถิติการลาออนไลน์'"></app-breadcrumbs>
+<div class="page-content">
+    <div class="page-header center" style="padding-top: 30px;">
+        <h1>
+            <i class="menu-icon fa fa-line-chart"></i>
+            รายงานสถิติการลาออนไลน์
+        </h1>
+        <p></p>
+        -:- สำนักงานสาธารณสุขจังหวัดชัยภูมิ -:-
+    </div><!-- /.page-header -->
+    <div class="row">
+        <div class="col-sm-4 col-md-4 block clearfix">
+            <label class="col-sm-4 col-md-4" for="form-field-select-1" style="padding-top:7px;">
+                ปีงบประมาณ:
+            </label>
+            <label class="block clearfix col-sm-8 col-md-8">
+                <select (change)="getReport(bYear)" [(ngModel)]="bYear" name="bYear" id="bYear" class="form-control"
+                    style="width: 100%;">
+                    <option *ngFor="let l of leaveBYear" [value]="l.b_year">
+                        {{ +l.b_year+543 }}
+                    </option>
+                </select>
+            </label>
+        </div>
+        <div class="col-xs-12">
+            <div class="table-header" style="background-color:green;">
+                <i class="menu-icon fa fa-bar-chart"></i>
+                สรุปข้อมูลการลารายบุคคล ประจำปีงบประมาณ {{ +bYear+543 }}
+            </div>
+            <div class="box-body table-responsive no-padding" id="sum-stamp">
+                <table class="table table-bordered table-hover table-striped headercenter">
+                    <thead>
+                        <tr>
+                            <th colspan="10">
+                                <div class="col-sm-4 col-md-4">
+                                    <select (change)="getLeaveHistory(department, bYear)" [(ngModel)]="department"
+                                        name="department" id="department" class="form-control">
+                                        <option value="all">ทั้งหมด</option>
+                                        <option *ngFor="let d of departments" [value]="d?.DEPTID">
+                                            {{ d?.DEPTNAME }}
+                                        </option>
+                                    </select>
+                                </div>
+                            </th>
+                        </tr>
+                        <tr>
+                            <th rowspan="3">#</th>
+                            <th rowspan="3">ชื่อ-สกุล</th>
+                            <th rowspan="3">กลุ่มงาน/งาน</th>
+                            <th colspan="5">ลาพักผ่อน</th>
+                            <th rowspan="3">ลากิจส่วนตัว</th>
+                            <th rowspan="3">ลาป่วย</th>
+                        </tr>
+                        <tr>
+                            <th colspan="2">วันลาคงเหลือสะสม/ปัจจุบัน</th>
+                            <th rowspan="2" class="info">รวม</th>
+                            <th rowspan="2">ลาแล้ว</th>
+                            <th rowspan="2" class="success">คงเหลือ</th>
+                        </tr>
+                        <tr>
+                            <th>สะสม</th>
+                            <th>ปัจจุบัน</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let l of leaveHistory; let i=index;">
+                            <td class="text-center">{{ i+1 }}</td>
+                            <td>
+                                <a href="javascript:void(0);" (click)="onDetail(l.cid)">
+                                    {{ l.pname }}{{ l.fname }} {{ l.lname }}
+                                </a>
+                            </td>
+                            <td>{{ (departments | filter:{DEPTID:department}:true)[0]?.DEPTNAME }}</td>
+                            <td class="text-center">{{ l.balance_last_year || '0' }}</td>
+                            <td class="text-center">{{ l.leave_rights || '0' }}</td>
+                            <td class="text-center info">{{ l.balance_last_year+l.leave_rights }}</td>
+                            <td class="text-center">
+                                <a href="javascript:void(0);" (click)="onDetail(l.cid, 1)">
+                                    {{ (l.collect+l.collect_start) || '0' }}
+                                </a>
+                            </td>
+                            <td class="text-center success"
+                                [ngClass]="{'text-danger': (l.balance_last_year+l.leave_rights)-(l.collect+l.collect_start)==0 }">
+                                {{ (l.balance_last_year+l.leave_rights)-(l.collect+l.collect_start) }}
+                            </td>
+                            <td class="text-center">
+                                <a href="javascript:void(0);" (click)="onDetail(l.cid, 2)">
+                                    {{ (l.collect02+l.collect02_start) || '0' }}
+                                </a>
+                            </td>
+                            <td class="text-center">
+                                <a href="javascript:void(0);" (click)="onDetail(l.cid, 3)">
+                                    {{ (l.collect03+l.collect03_start) || '0' }}
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                    <tfoot class="center" style="font-weight: bold;">
+
+                    </tfoot>
+                </table>
+            </div>
+        </div><!-- /.col -->
+    </div><!-- /.row -->
+    <div class="row">
+        <div class="col-sm-4 col-md-4 block clearfix">
+            <label class="col-sm-4 col-md-4" for="form-field-select-1" style="padding-top:7px;">
+                ปีงบประมาณ:
+            </label>
+            <label class="block clearfix col-sm-8 col-md-8">
+                <select (change)="getReport(bYear)" [(ngModel)]="bYear" name="bYear" id="bYear" class="form-control"
+                    style="width: 100%;">
+                    <option *ngFor="let l of leaveBYear" [value]="l.b_year">
+                        {{ +l.b_year+543 }}
+                    </option>
+                </select>
+            </label>
+        </div>
+        <div class="col-xs-12">
+            <div class="table-header">
+                <i class="menu-icon fa fa-bar-chart"></i>
+                สรุปยอดสถิติการลารวม ประจำปีงบประมาณ {{ +bYear+543 }}
+            </div>
+            <div class="box-body table-responsive no-padding" id="sum-stamp">
+                <table class="table table-bordered table-hover table-striped headercenter">
+                    <thead>
+                        <tr>
+                            <th rowspan="2">#</th>
+                            <th rowspan="2">กลุ่มงาน / งาน</th>
+                            <th rowspan="2">จำนวนคนที่ใช้งาน</th>
+                            <th colspan="4">การลา</th>
+                        </tr>
+                        <tr>
+                            <th>ลาพักผ่อน</th>
+                            <th>ลากิจส่วนตัว</th>
+                            <th>ลาป่วย</th>
+                            <th>รวม</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let r of report; let i=index;">
+                            <td class="text-center">{{ i+1 }}</td>
+                            <td>
+                                {{ r.workgroup }}
+                                {{ (r.workgroup_sub)?'/':'' }}
+                                {{ r.workgroup_sub }}
+                            </td>
+                            <td class="text-center">{{ r.person }}</td>
+                            <td style="text-align: right;">{{ numberFormat(r.leave_01) }}</td>
+                            <td style="text-align: right;">{{ numberFormat(r.leave_02) }}</td>
+                            <td style="text-align: right;">{{ numberFormat(r.leave_03) }}</td>
+                            <td style="text-align: right;">{{ numberFormat(+r.leave_01+r.leave_02+r.leave_03) }}</td>
+                        </tr>
+                    </tbody>
+                    <tfoot class="center" style="font-weight: bold;">
+                        <tr>
+                            <td colspan="2">รวม</td>
+                            <td>{{ report | sumColumn:'person' }}</td>
+                            <td style="text-align: right;">{{ numberFormat(report | sumColumn:'leave_01') }}</td>
+                            <td style="text-align: right;">{{ numberFormat(report | sumColumn:'leave_02') }}</td>
+                            <td style="text-align: right;">{{ numberFormat(report | sumColumn:'leave_03') }}</td>
+                            <td style="text-align: right;">
+                                {{ numberFormat(
+                                +(report | sumColumn:'leave_01')
+                                +(report | sumColumn:'leave_02')
+                                +(report | sumColumn:'leave_03')
+                                ) }}
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div><!-- /.col -->
+    </div><!-- /.row -->
+</div><!-- /.page-content -->
+
+<div class="modal fade" id="modal-detail">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header blue">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h3 class="modal-title center">
+                    <i class="fa fa-list-alt" aria-hidden="true"></i>
+                    รายละเอียดประวัติการลาของ
+                    {{ rowsLeave[0]?.pname }}{{ rowsLeave[0]?.fname }} {{ rowsLeave[0]?.lname }}
+                </h3>
+            </div>
+            <div class="modal-body">
+                <div class="box-body table-responsive no-padding">
+                    <table class="table table-bordered table-hover table-striped headercenter">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>สถานะ</th>
+                                <th>วันที่ทำรายการ</th>
+                                <th>จากวันที่</th>
+                                <th>ถึงวันที่</th>
+                                <th>ประเภทการลา</th>
+                                <th>จำนวนวัน</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let l of rowsLeave | filter:{ type_id:pipeLeave }:true; let i=index;">
+                                <td class="text-center">{{ i+1 }}</td>
+                                <td class="center">
+                                    <span *ngIf="l.status==0" class="text-danger">รออัพโหลดเอกสารยืนยัน</span>
+                                    <span *ngIf="l.status==1" class="text-warning">รอการอนุมัติ</span>
+                                    <span *ngIf="l.status==2" class="text-danger">{{ l.comment }}</span>
+                                    <span *ngIf="l.status==3" class="text-success">อนุมัติแล้ว</span>
+                                </td>
+                                <td class="text-center">
+                                    {{ l.dated | thaidate: 'short' }}
+                                </td>
+                                <td class="text-center">
+                                    {{ (l.start_time && l.start_time>='13:00:00') ? 'บ่าย' : 'เช้า' }}
+                                    <br />
+                                    {{ l.start_date | thaidate: 'short' }}
+                                </td>
+                                <td class="text-center">
+                                    {{ (l.end_time && l.end_time
+                                    <='12:00:00') ? 'เที่ยง' : 'เย็น' }} <br />
+                                    {{ l.end_date | thaidate: 'short' }}
+                                </td>
+                                <td class="text-center">
+                                    {{ l.type_name }}
+                                </td>
+                                <td class="text-center">
+                                    {{ l.amount_days }}
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tfoot class="text-center" style="font-weight: bold;">
+                            <tr>
+                                <td colspan="6">รวม</td>
+                                <td>
+                                    {{ (rowsLeave | filter:{ type_id:pipeLeave }) | sumColumn:'amount_days' }}
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer center">
+                <button type="button" class="btn btn-sm" data-dismiss="modal" aria-label="Close">
+                    <i class="fa fa-close" aria-hidden="true"></i>
+                    ปิด
+                </button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>

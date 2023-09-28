@@ -1,0 +1,7 @@
+<div *ngIf="loading" class="widget-box-overlay">
+    <i class="ace-icon loading-xx loading-icon fa fa-spinner fa-pulse fa-3x fa-fw white" style="top: 50%;"></i>
+</div>
+<app-breadcrumbs [subTitle]="'แก้ไขโปรไฟล์'"></app-breadcrumbs>
+<div *ngIf="decode" class="page-content">
+    <app-sign-up [editProfile]="decode" [profile]="profile" (onSignUp)="onSignUp($event)"></app-sign-up>
+</div>

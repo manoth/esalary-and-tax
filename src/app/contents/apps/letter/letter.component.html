@@ -1,0 +1,658 @@
+<div *ngIf="loading" class="widget-box-overlay">
+    <i class="ace-icon loading-xx loading-icon fa fa-spinner fa-pulse fa-3x fa-fw white" style="top: 50%;"></i>
+</div>
+<app-breadcrumbs [subTitle]="'ระบบหนังสือเวียนภายนอก'"></app-breadcrumbs>
+<div *ngIf="decode" class="page-content">
+    <div class="page-header center" style="padding-top: 30px;">
+        <h1 class="orange">
+            <i class="menu-icon fa fa-book"></i>
+            ระบบหนังสือเวียนภายนอก
+        </h1>
+        <p></p>
+        -:- สำนักงานสาธารณสุขจังหวัดชัยภูมิ -:-
+        <p></p>
+    </div><!-- /.page-header -->
+    <div class="alert alert-block alert-danger">
+        <h4>
+            <i class="ace-icon fa fa-exclamation-circle red"></i>
+            ระบบกำลังอยู่ในช่วงเปิดให้ทดลองใช้งาน
+        </h4>
+        <p>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            - คุณสามารถเข้ามาบันทึกข้อมูลต่าง ๆ ลงในระบบได้ ข้อมูลที่มีการบันทึกเข้ามาจะไม่มีผลใด๋ ๆ ต่อระบบงาน
+            และเมื่อเปิดให้ใช้งานจริง ข้อมูลที่มีการบันทึกเข้ามาในช่วงทดลองใช้งาน จะถูกลบออกเพื่อเริ่มต้นใหม่ทั้งหมด
+        </p>
+    </div>
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="tabbable">
+                <ul *ngIf="authGuard3" id="inbox-tabs"
+                    class="inbox-tabs nav nav-tabs padding-16 tab-size-bigger tab-space-1">
+                    <li class="li-new-mail pull-right" routerLinkActive="active">
+                        <a [routerLink]="['/apps/letter/write']" class="btn-new-mail">
+                            <span class="btn btn-success no-border">
+                                <i class="ace-icon fa fa-pencil bigger-130"></i>
+                                <span class="bigger-110">เขียน</span>
+                            </span>
+                        </a>
+                    </li><!-- /.li-new-mail -->
+                    <li routerLinkActive="active">
+                        <a [routerLink]="['/apps/letter/all']">
+                            <i class="blue ace-icon fa fa-inbox bigger-130"></i>
+                            <span class="bigger-110">หนังสือทั้งหมด</span>
+                        </a>
+                    </li>
+                    <li routerLinkActive="active">
+                        <a [routerLink]="['/apps/letter/group']">
+                            <i class="green ace-icon fa fa-bookmark bigger-130"></i>
+                            <span class="bigger-110">หนังสือกลุ่มงาน/งาน</span>
+                        </a>
+                    </li>
+                    <li routerLinkActive="active">
+                        <a [routerLink]="['/apps/letter/sent']">
+                            <i class="orange ace-icon fa fa-location-arrow bigger-130"></i>
+                            <span class="bigger-110">หนังสือที่แล้ว</span>
+                        </a>
+                    </li>
+                </ul>
+                <ul *ngIf="!authGuard3" id="inbox-tabs"
+                    class="inbox-tabs nav nav-tabs padding-16 tab-size-bigger tab-space-1">
+                    <li class="li-new-mail pull-right" routerLinkActive="active" *ngIf="decode?.letter=='Y'">
+                        <a (click)="onListReceiver()" class="btn-new-mail">
+                            <span class="btn btn-primary no-border">
+                                <i class="ace-icon fa fa-pencil-square-o bigger-130"></i>
+                                <span class="bigger-110">จัดการผู้รับผิดชอบ</span>
+                            </span>
+                        </a>
+                    </li>
+                    <li routerLinkActive="active">
+                        <a [routerLink]="['/apps/letter/inbox']">
+                            <i class="green ace-icon fa fa-inbox bigger-130"></i>
+                            <span class="bigger-110">หนังสือยังไม่ลงรับ</span>
+                            <span *ngIf="newBookNotReceive>0" class="badge badge-danger">
+                                {{ newBookNotReceive }}
+                            </span>
+                        </a>
+                    </li>
+                    <li routerLinkActive="active">
+                        <a [routerLink]="['/apps/letter/receive']">
+                            <i class="blue ace-icon fa fa-envelope-open bigger-130"></i>
+                            <span class="bigger-110">หนังสือลงรับแล้ว</span>
+                        </a>
+                    </li>
+                </ul>
+                <div class="tab-content no-border no-padding">
+                    <div id="inbox" class="tab-pane in active">
+                        <div *ngIf="inTabsCpho(tabActive) || inTabsHospital(tabActive)" class="message-container">
+                            <div id="id-message-new-navbar" class="message-navbar clearfix">
+                                {{
+                                (tabActive=='all')?'หนังสือที่หน่วยงานส่งออกทั้งหมด':
+                                (tabActive=='group')?'หนังสือที่กลุ่มงาน/งานส่งออก':
+                                (tabActive=='sent')?'หนังสือที่ส่ง':
+                                (tabActive=='inbox')?'หนังสือยังไม่ลงรับ':
+                                (tabActive=='receive')?'หนังสือลงรับแล้ว':''
+                                }}
+                                {{ (tabActive=='inbox')?'ทั้งหมด':'ประจำปีงบประมาณ' }}
+                                {{ (tabActive!='inbox')?(+bYear+543):'' }}
+                            </div>
+                            <div *ngIf="pageDetail && tabActive!='inbox'" class="message-list-container">
+                                <div class="form-horizontal message-form col-xs-12">
+                                    <div>
+                                        <div class="col-md-6 col-sm-6">
+                                            <h5><b>เลขที่หนังสือ:</b> {{ detail?.book_number}}</h5>
+                                        </div>
+                                        <div class="col-md-6 col-sm-6">
+                                            <h5><b>ลงวันที่:</b> {{ detail?.book_date | thaidate:'medium' }}</h5>
+                                        </div>
+                                        <div class="col-md-6 col-sm-6">
+                                            <h5><b>จาก:</b>
+                                                {{ detail?.sender_workgroup_sub || detail?.sender_workgroup }}
+                                            </h5>
+                                        </div>
+                                        <div class="col-md-6 col-sm-6">
+                                            <h5><b>ถึง:</b> {{ detail?.recipient_short || detail?.recipient }}</h5>
+                                        </div>
+                                        <div class="col-md-6 col-sm-6">
+                                            <h5><b>ชื่อผู้ส่ง:</b> {{ detail?.sender }}</h5>
+                                        </div>
+                                        <div class="col-md-6 col-sm-6" *ngIf="tabActive=='receive'">
+                                            <h5><b>ผู้ลงรับ:</b> {{ detail?.receive_by }}</h5>
+                                        </div>
+                                        <div class="col-md-12 col-sm-12">
+                                            <h5><b>เรื่อง:</b> {{ detail?.book_topic }}</h5>
+                                        </div>
+                                        <!-- <div class="space-24"></div> -->
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-4 col-sm-4 col-md-4">
+                                        <button [routerLink]="['/apps/letter/'+tabActive]" type="button"
+                                            class="center btn btn-xs btn-default pull-left">
+                                            <i class="ace-icon fa fa-hand-o-left"></i>
+                                            <span class="bigger-110"> กลับ</span>
+                                        </button>
+                                    </div>
+                                    <div class="col-xs-4 col-sm-4 col-md-4 center">
+                                        <button (click)="onDownload(detail?.book_topic)" type="button"
+                                            class="center btn btn-xs btn-success">
+                                            <i class="ace-icon fa fa-download"></i>
+                                            <span class="bigger-110"> ดาวน์โหลด</span>
+                                        </button>
+                                    </div>
+                                    <div class="col-xs-4 col-sm-4 col-md-4">
+                                        <button (click)="onPrint()" type="button"
+                                            class="center btn btn-xs btn-primary pull-right">
+                                            <i class="ace-icon fa fa-print"></i>
+                                            <span class="bigger-110"> พิมพ์</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="form-horizontal message-form col-xs-12">
+                                    <div style="border-style: dashed; border: width 5px;">
+                                        <pdf-viewer [src]="pdfUrl" [original-size]="false" [show-borders]="true"
+                                            style="width: 100%; height: 800px;"></pdf-viewer>
+                                    </div>
+                                </div>
+                            </div>
+                            <div *ngIf="!pageDetail" class="message-list-container">
+                                <div class="box-body table-responsive no-padding">
+                                    <table class="table table-bordered table-hover table-striped headercenter">
+                                        <thead>
+                                            <tr *ngIf="tabActive!='inbox'">
+                                                <th [attr.colspan]="(tabActive=='sent' || tabActive=='receive')?10:9">
+                                                    <div class="col-sm-3 col-md-3">
+                                                        <div class="col-sm-5 col-md-5" style="margin-top: 7px;">
+                                                            ปีงบประมาณ:
+                                                        </div>
+                                                        <div class="col-sm-7 col-md-7">
+                                                            <select [(ngModel)]="bYear" name="bYear" id="bYear"
+                                                                (change)="getBook(bYear)" class="form-control">
+                                                                <option *ngFor="let y of bYearArr" [value]="y.b_year">
+                                                                    {{ +y.b_year+543 }}
+                                                                </option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-6 col-md-6 pull-right">
+                                                        <div class="input-group">
+                                                            <span class="input-group-addon">
+                                                                <i class="ace-icon fa fa fa-search"></i>
+                                                            </span>
+                                                            <input [(ngModel)]="searchTerm" name="searchTerm"
+                                                                type="text" class="form-control nav-search-input"
+                                                                placeholder="ค้นหา ...">
+                                                        </div>
+                                                    </div>
+                                                </th>
+                                            </tr>
+                                            <tr>
+                                                <th>#</th>
+                                                <th *ngIf="!authGuard3">
+                                                    <span *ngIf="tabActive=='inbox'">ลงรับ</span>
+                                                    <span *ngIf="tabActive!='inbox'">เปิดอ่าน</span>
+                                                </th>
+                                                <th>วันที่ส่ง</th>
+                                                <th>เลขที่หนังสือ</th>
+                                                <th>ลงวันที่</th>
+                                                <th>เรื่อง</th>
+                                                <th>จาก</th>
+                                                <th>ถึง</th>
+                                                <th>ชื่อผู้ส่ง</th>
+                                                <th *ngIf="tabActive=='receive'">ชื่อผู้รับ</th>
+                                                <th *ngIf="authGuard3">จำนวนรับ/ส่ง</th>
+                                                <th *ngIf="tabActive=='sent'">ลบ</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr *ngFor="let item of book | filterAll : searchTerm; let i=index;">
+                                                <td class="text-center">{{ i+1 }}</td>
+                                                <td *ngIf="!authGuard3" class="text-center">
+                                                    <div class="btn-group">
+                                                        <button *ngIf="tabActive=='inbox'"
+                                                            (click)="onReceive(item.id, item.book_topic)"
+                                                            class="btn btn-xs btn-success">
+                                                            <i class="fa fa-envelope" aria-hidden="true"></i>
+                                                        </button>
+                                                        <button *ngIf="tabActive=='receive' && decode?.letter=='Y'"
+                                                            [routerLink]="['/apps/letter/'+tabActive]"
+                                                            [queryParams]="{detail: item.id}"
+                                                            class="btn btn-xs btn-default">
+                                                            <i class="fa fa-envelope-open-o" aria-hidden="true"></i>
+                                                        </button>
+                                                        <button *ngIf="tabActive=='receive' && decode?.letter!='Y'"
+                                                            class="btn btn-xs btn-default">
+                                                            <i class="fa fa-envelope-open-o" aria-hidden="true"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                                <td class="text-center">
+                                                    {{ item.last_update | thaidate:'short' }}
+                                                    {{ item.last_update | date:'HH:mm':'UTC' }}
+                                                </td>
+                                                <td class="text-center">
+                                                    {{ item.book_number }}
+                                                </td>
+                                                <td class="text-center">
+                                                    {{ item.book_date | thaidate:'short' }}
+                                                </td>
+                                                <td>
+                                                    <span
+                                                        *ngIf="tabActive=='inbox' || (decode?.letter!='Y' && !authGuard3)">
+                                                        {{ item.book_topic }}
+                                                    </span>
+                                                    <a *ngIf="tabActive!='inbox' && (decode?.letter=='Y' || authGuard3)"
+                                                        [routerLink]="['/apps/letter/'+tabActive]"
+                                                        [queryParams]="{detail: item.id}">
+                                                        {{ item.book_topic }}
+                                                    </a>
+                                                </td>
+                                                <td>{{ item.sender_workgroup_sub || item.sender_workgroup }}</td>
+                                                <td>{{ item.recipient_short || item.recipient }}</td>
+                                                <td>{{ item.sender }}</td>
+                                                <td *ngIf="tabActive=='receive'">{{ item.receive_by }}</td>
+                                                <td *ngIf="authGuard3" class="text-center">
+                                                    <a (click)="onViewReceive(item.id)" role="button">
+                                                        {{ item.qty_receive }}/{{ item.qty_send }}
+                                                    </a>
+                                                </td>
+                                                <td *ngIf="tabActive=='sent'" class="text-center">
+                                                    <div class="btn-group">
+                                                        <button (click)="onDel(item.id, item.book_topic)"
+                                                            class="btn btn-xs btn-danger">
+                                                            <i class="ace-icon fa fa-trash-o bigger-120"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <td [attr.colspan]="(tabActive=='sent' || tabActive=='receive')?10:9"
+                                                    class="center">
+                                                    {{
+                                                    ((book | filterAll : searchTerm).length>0) ? 'หน้า 1/1' :
+                                                    (searchTerm)?'ไม่พบข้อมูลหนังสือที่ค้นหา ...' :
+                                                    (authGuard3) ? 'ไม่ข้อมูลการส่งหนังสือเวียน ...' :
+                                                    'ไม่ข้อมูลหนังสือเวียน ...'
+                                                    }}
+                                                </td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div *ngIf="inTabWrite(tabActive)" class="message-container">
+                            <div id="id-message-new-navbar" class="message-navbar clearfix">
+                                แบบฟอร์มการส่งหนังสือเวียน สสจ.ชัยภูมิ
+                            </div>
+                            <div class="message-list-container">
+                                <form (submit)="onSubmit()" class="form-horizontal message-form col-xs-12">
+                                    <div>
+                                        <div class="col-xs-12 col-sm-12 col-md-12">
+                                            <div class="form-group">
+                                                <label class="col-sm-12 col-xs-12" for="sender">
+                                                    ผู้ส่ง :
+                                                </label>
+                                                <div class="col-sm-12 col-xs-12">
+                                                    <div class="input-icon">
+                                                        <input type="text" name="sender" class="form-control"
+                                                            [value]="txtSender(decode)" readonly>
+                                                        <i class="ace-icon fa fa-hospital"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-12 col-sm-4 col-md-4">
+                                            <div class="form-group" [class.has-error]="!letter.book_number">
+                                                <label class="col-sm-12 col-xs-12" for="book-number">
+                                                    เลขที่หนังสือ :
+                                                </label>
+                                                <div class="col-sm-12 col-xs-12">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon">
+                                                            {{ bookNumber?.book_number }}
+                                                        </span>
+                                                        <input [(ngModel)]="letter.book_number" type="text"
+                                                            name="bookNumber" class="form-control">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-12 col-sm-4 col-md-4">
+                                            <div class="form-group" [class.has-error]="!bookDate">
+                                                <label class="col-sm-12 col-xs-12" for="book-date">
+                                                    หนังสือลงวันที่ :
+                                                </label>
+                                                <div class="col-sm-12 col-xs-12">
+                                                    <my-date-picker style="width: 300px;" name="bookDate" id="bookDate"
+                                                        [options]="myDateOptions" [(ngModel)]="bookDate"
+                                                        [placeholder]="'วัน เดือน ปี'" [locale]="'th'" required>
+                                                    </my-date-picker>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-12 col-sm-4 col-md-4">
+                                            <div class="form-group"
+                                                [class.has-error]="!letter.book_page || 0>=letter.book_page">
+                                                <label class="col-sm-12 col-xs-12" for="book-page">
+                                                    จำนวนหน้า :
+                                                </label>
+                                                <div class="col-sm-12 col-xs-12">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon">
+                                                            จำนวน
+                                                        </span>
+                                                        <input [(ngModel)]="letter.book_page" type="number"
+                                                            name="bookPage" class="form-control">
+                                                        <span class="input-group-addon">
+                                                            หน้า
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-12 col-sm-6 col-md-6">
+                                            <div class="form-group">
+                                                <label class="col-sm-12 col-xs-12" for="book-speed">
+                                                    ความเร่งด่วน :
+                                                </label>
+                                                <div class="col-sm-12 col-xs-12">
+                                                    <select [(ngModel)]="letter.book_speed" name="bookSpeed"
+                                                        class="form-control">
+                                                        <option *ngFor="let item of bookSpeed" [value]="item.speed_id">
+                                                            {{ item.speed_name }}
+                                                        </option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-12 col-sm-6 col-md-6">
+                                            <div class="form-group">
+                                                <label class="col-sm-12 col-xs-12" for="book-type">
+                                                    ประเภทหนังสือ :
+                                                </label>
+                                                <div class="col-sm-12 col-xs-12">
+                                                    <select [(ngModel)]="letter.book_type" name="bookType"
+                                                        class="form-control">
+                                                        <option *ngFor="let item of bookType" [value]="item.type_id">
+                                                            {{ item.type_name }}
+                                                        </option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-12 col-sm-12 col-md-12">
+                                            <div class="form-group" [class.has-error]="!(sendToArr.length>0)">
+                                                <label class="col-sm-12 col-xs-12" for="send-to">
+                                                    หน่วยงานทีรับหนังสือ :
+                                                </label>
+                                                <div class="col-sm-12 col-xs-12">
+                                                    <select (change)="onChangSendTo()" [(ngModel)]="sendTo"
+                                                        name="sendTo" class="form-control">
+                                                        <option *ngFor="let item of bookSend"
+                                                            [value]="item.recipient_code">
+                                                            {{ item.recipient_name }}
+                                                        </option>
+                                                        <option value="">
+                                                            ระบุหน่วยงานที่รับหนังสือด้วยตัวเอง
+                                                        </option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div *ngIf="!sendTo" class="col-xs-12 col-sm-12 col-md-12">
+                                            <div class="container">
+                                                <div class="form-group">
+                                                    <div class="col-sm-12 col-xs-12">
+                                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                                            <label style="font-style: unset;">
+                                                                <u>==โรงพยาบาล==</u>
+                                                            </label>
+                                                            <div *ngFor="let item of sendHospital" class="checkbox">
+                                                                <label>
+                                                                    <input type="checkbox" [value]="item.hoscode"
+                                                                        (change)="onCheckSendTo($event)"
+                                                                        class="ng-untouched ng-pristine ng-valid">
+                                                                    {{ item.hosname }}
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                                            <label style="font-style: unset;">
+                                                                <u>==สำนักงานสาธารณสุขอำเภอ==</u>
+                                                            </label>
+                                                            <div *ngFor="let item of sendSso" class="checkbox">
+                                                                <label>
+                                                                    <input type="checkbox" [value]="item.hoscode"
+                                                                        (change)="onCheckSendTo($event)"
+                                                                        class="ng-untouched ng-pristine ng-valid">
+                                                                    {{ item.hosname }}
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-12 col-sm-12 col-md-12">
+                                            <div class="form-group" [class.has-error]="!letter.book_topic">
+                                                <label class="col-sm-12 col-xs-12" for="topic">
+                                                    หัวข้อเรื่อง :
+                                                </label>
+                                                <div class="col-sm-12 col-xs-12">
+                                                    <input [(ngModel)]="letter.book_topic" type="text" name="topic"
+                                                        class="form-control" placeholder="หัวข้อเรื่อง">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-12 col-sm-12 col-md-12">
+                                            <div class="form-group">
+                                                <label class="col-sm-12 col-xs-12" for="note">
+                                                    สรุปสาระสำคัญ :
+                                                </label>
+                                                <div class="col-sm-12 col-xs-12">
+                                                    <textarea [(ngModel)]="letter.book_note" rows="3" name="note"
+                                                        placeholder="(ถ้ามี)" class="form-control"></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-12 col-sm-12 col-md-12">
+                                            <div class="form-group" [class.has-error]="!pdfFile">
+                                                <label class="col-sm-12 col-xs-12" for="file-pdf">
+                                                    แนบแฟ้มเอกสาร : (เฉพาะ .pdf เท่านั้น)
+                                                </label>
+                                                <div class="col-sm-12 col-xs-12">
+                                                    <input #file (change)="fileProgress(file.files)" type="file"
+                                                        name="pdfFile" accept=".pdf" class="form-control">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-12 col-sm-12 col-md-12">
+                                            <div class="form-group align-center">
+                                                <div class="space"></div>
+                                                <button type="submit" class="btn btn-sm btn-info">
+                                                    <i class="ace-icon fa fa-send bigger-140"></i>
+                                                    ส่งหนังสือ
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="space-24"></div>
+        </div>
+    </div><!-- /.row -->
+    <div class="space-12"></div>
+</div>
+
+<div class="modal fade" id="view-receive" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content" style="padding-bottom: 5px;">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h2 class="modal-title center">
+                    <i class="ace-icon fa fa fa-check-square-o"></i>
+                    ตรวจสอบการลงรับหนังสือ
+                </h2>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6 col-sm-6">
+                        <b>เลขที่หนังสือ:</b> {{ detail?.book_number}}
+                    </div>
+                    <div class="col-md-6 col-sm-6">
+                        <b>ลงวันที่:</b> {{ detail?.book_date | thaidate:'medium' }}
+                    </div>
+                    <div class="col-md-6 col-sm-6">
+                        <b>จาก:</b>
+                        {{ detail?.sender_workgroup_sub || detail?.sender_workgroup }}
+                    </div>
+                    <div class="col-md-6 col-sm-6">
+                        <b>ถึง:</b> {{ detail?.recipient_short || detail?.recipient }}
+                    </div>
+                    <div class="col-md-12 col-sm-12">
+                        <b>ผู้ส่ง:</b> {{ detail?.sender }}
+                    </div>
+                    <div class="col-md-12 col-sm-12">
+                        <b>เรื่อง:</b> {{ detail?.book_topic }}
+                    </div>
+                    <div class="space-6"></div>
+                </div>
+                <div class="row">
+                    <table class="table table-bordered table-hover table-striped headercenter">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>หน่วยงานทีรับหนังสือ</th>
+                                <th>สถานะ</th>
+                                <th>วันที่ลงรับ</th>
+                                <th>ชื่อผู้ลงรับ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let item of receiveArr; let i=index;">
+                                <td class="text-center">{{ i+1 }}</td>
+                                <td>{{ item.hospname }}</td>
+                                <td class="text-center">
+                                    <i *ngIf="item.receive=='Y'" class="green fa fa-check-square fa-2x"
+                                        aria-hidden="true"></i>
+                                    <i *ngIf="item.receive=='N'" class="red fa fa-window-close fa-2x"
+                                        aria-hidden="true"></i>
+                                </td>
+                                <td *ngIf="!item.receive_date "></td>
+                                <td *ngIf="item.receive_date ">
+                                    {{ item.receive_date | thaidate:'short' }}
+                                    {{ item.receive_date | date:'HH:mm':'UTC' }}
+                                </td>
+                                <td>{{ item.receive_by }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="text-center">
+                <button type="button" class="btn btn-sm btn-default" data-dismiss="modal">
+                    ปิด
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="list-receive" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content" style="padding-bottom: 5px;">
+            <div class="modal-header bg-primary">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h2 class="modal-title center">
+                    <i class="ace-icon fa fa fa-list"></i>
+                    รายชื่อเจ้าหน้าที่ผู้รับผิดชอบ
+                </h2>
+            </div>
+            <div class="modal-body">
+                <div class="widget-box collapsed">
+                    <div class="widget-header">
+                        <h4 class="widget-title">
+                            <i class="fa fa-plus-square" aria-hidden="true"></i>
+                            เพิ่มผู้รับผิดชอบ
+                        </h4>
+                        <div class="widget-toolbar">
+                            <a href="#" data-action="collapse">
+                                <i class="ace-icon fa fa-chevron-down"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="widget-body" style="display: none;">
+                        <div class="widget-main">
+                            <div class="input-group" [class.has-error]="!receiverCid">
+                                <label for="receiverCid">
+                                    <small [class.blue]="receiverCid" [class.red]="!receiverCid">
+                                        ***เพิ่มผู้รับผิดชอบโดยกรอกเลขประจำตัวประชาชน แล้วกดบันทึก***
+                                    </small>
+                                </label>
+                            </div>
+                            <div class="input-group" [class.has-error]="!receiverCid">
+                                <input [(ngModel)]="receiverCid" name="receiverCid" class="form-control" type="text"
+                                    placeholder="เลขประจำตัวประชาชน">
+                                <span class="input-group-btn">
+                                    <button (click)="addReceiver()" class="btn btn-sm btn-success" type="button">
+                                        <i class="ace-icon fa fa-save bigger-110"></i>
+                                        บันทึก
+                                    </button>
+                                </span>
+                            </div>
+                            <div class="space-6"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="space-6"></div>
+                    <table class="table table-bordered table-hover table-striped headercenter">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>ชื่อ-สกุล</th>
+                                <th>วันที่เริ่ม</th>
+                                <th>ลบ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let item of receiverList; let i=index;">
+                                <td class="text-center">{{ i+1 }}</td>
+                                <td>{{ item.prename }}{{ item.fname }} {{ item.lname }}</td>
+                                <td class="text-center">{{ item.last_update | thaidate:'short' }}</td>
+                                <td class="text-center">
+                                    <button *ngIf="item.cid!=decode?.cid" (click)="delReceiver(item)"
+                                        class="btn btn-xs btn-danger">
+                                        <i class="ace-icon fa fa-trash-o bigger-120"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tfoot *ngIf="receiverList.length==0">
+                            <tr>
+                                <td colspan="5" class="text-center">
+                                    ยังไม่มีผู้รับผิดชอบ ...
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer center">
+                <button type="button" class="btn btn-sm btn-default" data-dismiss="modal">
+                    ปิด
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

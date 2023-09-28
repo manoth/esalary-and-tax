@@ -1,0 +1,21 @@
+<div *ngIf="loading" class="container" style="padding-top: 50px;">
+    <div class="d-flex justify-content-center">
+        <div style="text-align: center;">
+            <i class="material-icons" style="font-size:150px;color:green" [ngStyle]="{'color': (active)?'green':'red'}">
+                {{ (active)?'check_circle_outline':'error' }}
+            </i>
+            <h1 *ngIf="active" style="color:green">ยินดีด้วย {{ txtActive }}</h1>
+            <h1 *ngIf="!active" style="color:red">เสียใจด้วย !</h1>
+            <h4 *ngIf="!active">{{ txtError }}</h4>
+            <h4></h4>
+            <br>
+            <a [routerLink]="[(active)?'/signin':'/signup']"
+                [ngStyle]="{'border-color': (active)?'green':'blue','background':(active)?'green':'blue'}"
+                style="text-decoration:none;font-family:Sarabun,'helvetica neue',helvetica,sans-serif;font-size:18px;color:#ffffff;border-style:solid;border-width:10px 20px;display:inline-block;border-radius:30px;font-weight:normal;font-style:normal;line-height:22px;width:auto;text-align:center">
+                {{ (active)?'คลิกเพื่อไปยังหน้าเข้าสู่ระบบ':'คลิกเพื่อไปยังหน้าลงทะเบียน' }}
+            </a>
+            <br>
+            <br>Copyright © 2019 ICT Chaiyaphum Provincial Health Office
+        </div>
+    </div>
+</div>

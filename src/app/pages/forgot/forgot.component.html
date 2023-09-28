@@ -1,0 +1,97 @@
+<div *ngIf="loading" class="widget-box-overlay">
+    <i class="ace-icon loading-xx loading-icon fa fa-spinner fa-pulse fa-3x fa-fw white" style="top: 50%;"></i>
+</div>
+<div id="forgot-box" class="forgot-box visible widget-box no-border">
+    <div class="widget-body">
+        <div class="widget-main">
+            <h4 class="header red lighter bigger">
+                <i class="ace-icon fa fa-key"></i>
+                ความช่วยเหลือเกี่ยวกับรหัสผ่าน
+            </h4>
+            <div class="space-6"></div>
+            <div *ngIf="!otpPage" class="">
+                <p>กรุณากรอกเลขประจำตัวประชาชนของคุณ</p>
+                <form enctype="multipart/form-data" class="form-horizontal" (ngSubmit)="onSubmit()">
+                    <fieldset>
+                        <label class="block clearfix" [class.has-error]="cidError">
+                            <span class="block input-icon input-icon-right">
+                                <input type="text" [(ngModel)]="forgot.cid" name="cid" id="cid" class="form-control"
+                                    placeholder="เลขประจำตัวประชาชน" (change)="onCid(forgot.cid)"
+                                    (blur)="onCid(forgot.cid)" (keyup)="onCid(forgot.cid)" minlength="13"
+                                    (keypress)="main.isNumberKey($event)" maxLength="13" autofocus />
+                                <i class="ace-icon fa fa-id-card"></i>
+                            </span>
+                            <span class="help-block col-xs-12 col-sm-reset inline" style="font-size: 12px;"
+                                *ngIf="cidError">
+                                {{ (forgot.cid)?'เลขประจำตัวประชาชนไม่ถูกต้อง!':'*จำเป็นต้องมีข้อมูล!' }}
+                            </span>
+                        </label>
+
+                        <div class="clearfix">
+                            <button type="submit" class="width-35 pull-right btn btn-sm btn-danger">
+                                <i class="ace-icon fa fa-lightbulb-o"></i>
+                                <span class="bigger-110">ส่งคำร้องขอ!</span>
+                            </button>
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
+            <div *ngIf="otpPage" class="">
+                <div *ngIf="user" class="box-body box-profile">
+                    <p class="profile-username text-center">
+                        <img style="width:70px; height: 70px;" class="profile-user-img img-responsive img-circle center"
+                            [src]="user?.image || './assets/images/profile-avatar-user-' + user?.sex + '.png'"
+                            alt="User profile picture">
+                    </p>
+                    <p class="profile-username text-center">
+                        <b>ชื่อบัญชีผู้ใช้ : {{user?.username}}</b>
+                    </p>
+                    <p class="text-muted center">
+                        เรียน คุณ{{user?.fname}} {{user?.lname}}<br />
+                        เราได้ทำการส่งรหัส OTP ไปยัง <br />
+                        Email: <u>{{user?.email}}</u><br />
+                        และ Line ส่วนตัว ของคุณแล้ว<br />
+                    </p>
+                    <p class="profile-username text-center">
+                        <b>คุณมีเวลาในการใส่รหัส OTP เหลือ</b>
+                    </p>
+                    <h4 class="profile-username text-center red">
+                        {{otpDate.minutes}}:{{otpDate.seconds}} นาที
+                    </h4>
+                </div>
+                <!-- <p>กรุณากรอกรหัส OTP ที่คุณได้รับจาก E-mail หรือ Line ของคุณ</p> -->
+                <p class="center">รหัสอ้างอิง: [{{user?.id_otp}}]</p>
+                <form enctype="multipart/form-data" class="form-horizontal" (ngSubmit)="onSendOtp()">
+                    <fieldset>
+                        <label class="block clearfix" [class.has-error]="otpError">
+                            <span class="block input-icon input-icon-right">
+                                <input type="text" [(ngModel)]="forgot.otp" name="otp" id="otp"
+                                    (change)="onCid(forgot.otp)" (blur)="onCid(forgot.otp)" (keyup)="onCid(forgot.otp)"
+                                    class="form-control" placeholder="กรุณากรอกรหัส OTP 6 หลัก" autofocus
+                                    style="text-align: center;" />
+                                <i class="ace-icon fa fa-key"></i>
+                            </span>
+                            <span class="help-block col-xs-12 col-sm-reset inline" style="font-size: 12px;"
+                                *ngIf="otpError">
+                                *จำเป็นต้องมีข้อมูล!
+                            </span>
+                        </label>
+                        <div class="clearfix center">
+                            <button type="submit" class="width-35 btn btn-sm btn-success">
+                                <i class="ace-icon fa fa-sign-in"></i>
+                                <span class="bigger-110">ตกลง</span>
+                            </button>
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
+        </div><!-- /.widget-main -->
+
+        <div class="toolbar center">
+            <a routerLink="/signin" (click)="onClearInterval()" class="back-to-login-link">
+                กลับหน้าเข้าสู่ระบบ
+                <i class="ace-icon fa fa-arrow-right"></i>
+            </a>
+        </div>
+    </div><!-- /.widget-body -->
+</div><!-- /.forgot-box -->

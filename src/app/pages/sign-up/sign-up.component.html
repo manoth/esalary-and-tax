@@ -1,0 +1,430 @@
+<div *ngIf="signUp && !signUpSuccess" id="signup-box" class="signup-box visible widget-box no-border">
+    <div class="widget-body">
+        <div class="widget-main">
+            <h4 class="header green lighter bigger">
+                <i class="ace-icon fa blue" [ngClass]="(editProfile)?'fa-pencil-square-o':'fa-users' "></i>
+                {{ (editProfile)?'แก้ไขโปรไฟล์ของคุณ':'ลงทะเบียนเพื่อเข้าใช้งานระบบ' }}
+            </h4>
+            <div class="row">
+                <div class="space-6"></div>
+                <p class="col-sm-6 col-md-6"> ตั้งค่าบัญชีของคุณ: </p>
+                <p class="col-sm-6 col-md-6 hidden-xs"> ป้อนรายละเอียดข้อมูลส่วนตัวของคุณ: </p>
+            </div>
+            <form enctype="multipart/form-data" class="form-horizontal" (ngSubmit)="onSubmit()">
+                <div class="row">
+                    <fieldset class="col-sm-6 col-md-6">
+                        <div class="form-group" [class.has-error]="err.username">
+                            <label for="username" class="col-md-3 control-label no-padding-right hidden-xs hidden-sm">
+                                ชื่อบัญชีผู้ใช้:
+                            </label>
+                            <div class="col-md-9 block clearfix">
+                                <span class="block input-icon input-icon-right">
+                                    <input [(ngModel)]="signUp.username" name="username" id="username" type="text"
+                                        class="form-control" placeholder="Username"
+                                        (change)="onUsername(signUp.username)" (blur)="onUsername(signUp.username)"
+                                        (keyup)="onUsername(signUp.username)" autofocus required />
+                                    <i class="ace-icon fa fa-user"></i>
+                                </span>
+                                <span class="help-block col-xs-12 col-sm-reset inline" style="font-size: 12px;"
+                                    *ngIf="err.username">
+                                    {{ txt.username }}
+                                </span>
+                            </div>
+                            <!-- <div *ngIf="editProfile" class="col-md-9 block clearfix">
+                                <span class="block input-icon input-icon-right">
+                                    <input [(ngModel)]="editProfile.username" name="username" id="username" type="text"
+                                        class="form-control" placeholder="Username" disabled />
+                                    <i class="ace-icon fa fa-user"></i>
+                                </span>
+                            </div> -->
+                        </div>
+                        <div class="form-group" [class.has-error]="err.password">
+                            <label for="password" class="col-md-3 control-label no-padding-right hidden-xs hidden-sm">
+                                รหัสผ่าน:
+                            </label>
+                            <div class="col-md-9 block clearfix">
+                                <span class="block input-icon input-icon-right">
+                                    <input [(ngModel)]="password" name="password" id="password" type="password"
+                                        class="form-control" placeholder="Password" (change)="onPassword(password)"
+                                        (blur)="onPassword(password)" (keyup)="onPassword(password)" required />
+                                    <i class="ace-icon fa fa-lock"></i>
+                                </span>
+                                <span class="help-block col-xs-12 col-sm-reset inline" style="font-size: 12px;"
+                                    *ngIf="err.password">
+                                    {{ txt.password }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="form-group" *ngIf="password && password.length > 7 && !err.password"
+                            [class.has-error]="err.repassword">
+                            <label for="repassword" class="col-md-3 control-label no-padding-right hidden-xs hidden-sm">
+                                ยืนยันรหัสผ่าน:
+                            </label>
+                            <div class="col-md-9 block clearfix">
+                                <span class="block input-icon input-icon-right">
+                                    <input [(ngModel)]="repassword" name="repassword" id="repassword" type="password"
+                                        class="form-control" placeholder="Repeat password"
+                                        (change)="onRePassword(repassword)" (blur)="onRePassword(repassword)"
+                                        (keyup)="onRePassword(repassword)" required />
+                                    <i class="ace-icon fa fa-retweet"></i>
+                                </span>
+                                <span class="help-block col-xs-12 col-sm-reset inline" style="font-size: 12px;"
+                                    *ngIf="err.repassword">
+                                    {{ txtNull(repassword,'รหัสผ่านไม่ตรงกัน!') }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="space-6"></div>
+                            <p class="center"> เลือกรูปโปรไฟล์ </p>
+                            <div class="block clearfix center">
+                                <input #file type="file" name="file" accept='image/*'
+                                    (change)="fileProgress(file.files)" style="display: none;" />
+                                <a href="javascript:void(0)" (click)="file.click()" class="image-edit">
+                                    <img class="profile-user-img img-responsive img-circle" [src]="imgURL"
+                                        alt="คลิกเพื่อเลือกรูปภาพโปรไฟล์" style="width: 120px; height: 120px;">
+                                    <p>คลิกเพื่อเลือกรูปภาพ</p>
+                                </a>
+                            </div>
+                            <div class="space-10"></div>
+                        </div>
+                    </fieldset>
+                    <fieldset class="col-sm-6 col-md-6">
+                        <div class="form-group" [class.has-error]="err.cid">
+                            <label for="cid" class="col-md-3 control-label no-padding-right hidden-xs hidden-sm">
+                                รหัสประชาชน:
+                            </label>
+                            <div *ngIf="!editProfile" class="col-md-9 block clearfix">
+                                <span class="block input-icon input-icon-right">
+                                    <input [(ngModel)]="signUp.cid" name="cid" id="cid" type="text" class="form-control"
+                                        placeholder="เลขประจำตัวประชาชน" (change)="onCid(signUp.cid)"
+                                        (blur)="onCid(signUp.cid)" (keyup)="onCid(signUp.cid)" minlength="13"
+                                        (keypress)="main.isNumberKey($event)" maxLength="13" required />
+                                    <i class="ace-icon fa fa-id-card"></i>
+                                </span>
+                                <span class="help-block col-xs-12 col-sm-reset inline" style="font-size: 12px;"
+                                    *ngIf="err.cid">
+                                    {{ txt.cid }}
+                                </span>
+                            </div>
+                            <div *ngIf="editProfile" class="col-md-9 block clearfix">
+                                <span class="block input-icon input-icon-right">
+                                    <input [(ngModel)]="editProfile.cid" name="cid" id="cid" type="text"
+                                        class="form-control" placeholder="เลขประจำตัวประชาชน" minlength="13"
+                                        (keypress)="main.isNumberKey($event)" maxLength="13" disabled />
+                                    <i class="ace-icon fa fa-id-card"></i>
+                                </span>
+                            </div>
+                        </div>
+                        <div *ngIf="!editProfile" class="form-group" [class.has-error]="err.hospcode">
+                            <label for="hospcode" class="col-md-3 control-label no-padding-right hidden-xs hidden-sm">
+                                สถานที่ปฏิบัติงาน:
+                            </label>
+                            <div class="col-md-9 block clearfix">
+                                <select [(ngModel)]="signUp.hospcode" name="hospcode" id="hospcode"
+                                    class="form-control select2" style="width: 100%;">
+                                    <option value="" disabled="disabled">== กรุณาเลือกสถานบริการ ==</option>
+                                    <option *ngFor="let h of hospital" [value]="h.hospcode">
+                                        [{{ h.hospcode }}]{{ h.hospname }}
+                                    </option>
+                                </select>
+                                <span class="help-block col-xs-12 col-sm-reset inline" style="font-size: 12px;"
+                                    *ngIf="err.hospcode">
+                                    *จำเป็นต้องเลือกข้อมูล!
+                                </span>
+                            </div>
+                        </div>
+                        <div *ngIf="!editProfile && workgroup" class="form-group">
+                            <label for="workgroup" class="col-md-3 control-label no-padding-right hidden-xs hidden-sm">
+                                กลุ่มงาน / แผนก:
+                            </label>
+                            <div class="col-md-9 block clearfix">
+                                <select (change)="getWorkgroupSub(signUp.workgroup, '')" [(ngModel)]="signUp.workgroup"
+                                    name="workgroup" id="workgroup" class="form-control" style="width: 100%;">
+                                    <option *ngFor="let w of workgroup" [value]="w.workgroup_code">
+                                        {{ w.workgroup }}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                        <div *ngIf="!editProfile && workgroupsub" class="form-group">
+                            <label for="workgroupsub"
+                                class="col-md-3 control-label no-padding-right hidden-xs hidden-sm">
+                                งาน / แผนกย่อย:
+                            </label>
+                            <div class="col-md-9 block clearfix">
+                                <select [(ngModel)]="signUp.workgroup_sub" name="workgroupsub" id="workgroupsub"
+                                    class="form-control" style="width: 100%;">
+                                    <option *ngFor="let w of workgroupsub" [value]="w.workgroup_sub_code">
+                                        {{ w.workgroup_sub }}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group" [class.has-error]="err.pname">
+                            <label for="pname" class="col-md-3 control-label no-padding-right hidden-xs hidden-sm">
+                                คำนำหน้าชื่อ:
+                            </label>
+                            <div class="col-md-9 block clearfix">
+                                <select [(ngModel)]="signUp.pname" name="pname" id="pname" class="form-control select2"
+                                    style="width: 100%;">
+                                    <option value="" disabled="disabled">== กรุณาเลือกคำนำหน้าชื่อ ==</option>
+                                    <option *ngFor="let p of prename" [value]="p.id_prename">
+                                        {{ p.prename }}
+                                    </option>
+                                </select>
+                                <span class="help-block col-xs-12 col-sm-reset inline" style="font-size: 12px;"
+                                    *ngIf="err.pname">
+                                    *จำเป็นต้องเลือกข้อมูล!
+                                </span>
+                            </div>
+                        </div>
+                        <div class="form-group" [class.has-error]="err.fname">
+                            <label for="fname" class="col-md-3 control-label no-padding-right hidden-xs hidden-sm">
+                                ชื่อจริง:
+                            </label>
+                            <div class="col-md-9 block clearfix">
+                                <span class="block input-icon input-icon-right">
+                                    <input [(ngModel)]="signUp.fname" name="fname" id="fname" type="text"
+                                        class="form-control" placeholder="ชื่อจริง" (change)="onFname(signUp.fname)"
+                                        (blur)="onFname(signUp.fname)" (keyup)="onFname(signUp.fname)" required />
+                                    <i class="ace-icon fa fa-address-book"></i>
+                                </span>
+                                <span class="help-block col-xs-12 col-sm-reset inline" style="font-size: 12px;"
+                                    *ngIf="err.fname">
+                                    {{ txtNull(signUp.fname) }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="form-group" [class.has-error]="err.lname">
+                            <label for="lname" class="col-md-3 control-label no-padding-right hidden-xs hidden-sm">
+                                นามสกุล:
+                            </label>
+                            <div class="col-md-9 block clearfix">
+                                <span class="block input-icon input-icon-right">
+                                    <input [(ngModel)]="signUp.lname" name="lname" id="lname" type="text"
+                                        class="form-control" placeholder="นามสกุล" (change)="onLname(signUp.lname)"
+                                        (blur)="onLname(signUp.lname)" (keyup)="onLname(signUp.lname)" required />
+                                    <i class="ace-icon fa fa-address-book"></i>
+                                </span>
+                                <span class="help-block col-xs-12 col-sm-reset inline" style="font-size: 12px;"
+                                    *ngIf="err.lname">
+                                    {{ txtNull(signUp.lname) }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="form-group" [class.has-error]="err.birth">
+                            <label for="birth" class="col-md-3 control-label no-padding-right hidden-xs hidden-sm">
+                                วันเกิด:
+                            </label>
+                            <div class="col-md-9 block clearfix">
+                                <my-date-picker name="birth" id="birth" [options]="myDatePickerOptions"
+                                    [(ngModel)]="birth" (dateChanged)="onBirth($event)" (click)="onBirth(birth)"
+                                    [placeholder]="'วัน เดือน ปีเกิด'" [locale]="'th'" required>
+                                </my-date-picker>
+                                <span class="help-block col-xs-12 col-sm-reset inline" style="font-size: 12px;"
+                                    *ngIf="err.birth">
+                                    *กรุณาเลือก วัน เดือน ปีเกิด
+                                </span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="sex" class="col-xs-3 col-sm-3 col-md-3 control-label no-padding-right"
+                                style="padding-top: 0px;">
+                                <div class="space-6"></div>
+                                เพศ:
+                            </label>
+                            <div class="col-xs-9 col-sm-9 col-md-9 block clearfix">
+                                <label class="col-xs-6 col-sm-6">
+                                    <div class="space-6"></div>
+                                    <input [(ngModel)]="signUp.sex" (change)="onSex(signUp.sex)" type="radio" name="sex"
+                                        value="1" class="minimal-red" checked>
+                                    ชาย
+                                </label>
+                                <label class="ccol-xs-6 ol-sm-6">
+                                    <div class="space-6"></div>
+                                    <input [(ngModel)]="signUp.sex" (change)="onSex(signUp.sex)" type="radio" name="sex"
+                                        value="2" class="minimal-red">
+                                    หญิง
+                                </label>
+                            </div>
+                        </div>
+                        <div *ngIf="!editProfile" class="form-group" [class.has-error]="err.type">
+                            <label for="type" class="col-md-3 control-label no-padding-right hidden-xs hidden-sm">
+                                ประเภทตำแหน่ง:
+                            </label>
+                            <div class="col-md-9 block clearfix">
+                                <select [(ngModel)]="signUp.type" name="type" id="type" class="form-control select2"
+                                    style="width: 100%;">
+                                    <option value="" disabled="disabled">== กรุณาเลือกประเภทตำแหน่ง ==</option>
+                                    <option *ngFor="let t of type" [value]="t.type_code">
+                                        {{ t.type_profile }}
+                                    </option>
+                                </select>
+                                <span class="help-block col-xs-12 col-sm-reset inline" style="font-size: 12px;"
+                                    *ngIf="err.type">
+                                    *จำเป็นต้องเลือกข้อมูล!
+                                </span>
+                            </div>
+                        </div>
+                        <div *ngIf="!editProfile" class="form-group" [class.has-error]="err.position">
+                            <label for="position" class="col-md-3 control-label no-padding-right hidden-xs hidden-sm">
+                                ตำแหน่ง:
+                            </label>
+                            <div class="col-md-9 block clearfix">
+                                <select [(ngModel)]="signUp.position" name="position" id="position"
+                                    class="form-control select2" style="width: 100%;">
+                                    <option value="" disabled="disabled">== กรุณาเลือกตำแหน่ง ==</option>
+                                    <option *ngFor="let p of position" [value]="p.id_position">
+                                        {{ p.position }}
+                                    </option>
+                                </select>
+                                <span class="help-block col-xs-12 col-sm-reset inline" style="font-size: 12px;"
+                                    *ngIf="err.position">
+                                    *จำเป็นต้องเลือกข้อมูล!
+                                </span>
+                            </div>
+                        </div>
+                        <div *ngIf="!editProfile && signUp.type=='01'" class="form-group">
+                            <label for="level" class="col-md-3 control-label no-padding-right hidden-xs hidden-sm">
+                                ระดับ:
+                            </label>
+                            <div class="col-md-9 block clearfix">
+                                <select [(ngModel)]="signUp.level" name="level" id="level" class="form-control"
+                                    style="width: 100%;">
+                                    <option *ngFor="let l of level" [value]="l.level_code">
+                                        {{ l.level_name }}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                        <div *ngIf="editProfile" class="form-group">
+                            <label for="dateStartWorking"
+                                class="col-md-3 control-label no-padding-right hidden-xs hidden-sm">
+                                วันที่เริ่มทำงาน/บรรจุ:
+                            </label>
+                            <div class="col-md-9 block clearfix">
+                                <my-date-picker name="dateStartWorking" id="dateStartWorking"
+                                    [options]="myDatePickerOptions" [(ngModel)]="dateStartWorking"
+                                    [placeholder]="'วัน เดือน ปีที่เริ่มทำงาน/บรรจุ'" [locale]="'th'" disabled>
+                                </my-date-picker>
+                            </div>
+                        </div>
+                        <div class="form-group" [class.has-error]="err.email">
+                            <label for="email" class="col-md-3 control-label no-padding-right hidden-xs hidden-sm">
+                                Email:
+                            </label>
+                            <div class="col-md-9 block clearfix">
+                                <span class="block input-icon input-icon-right">
+                                    <input [(ngModel)]="signUp.email" name="email" id="email" type="email"
+                                        class="form-control" placeholder="Email" (change)="onEmail(signUp.email)"
+                                        (blur)="onEmail(signUp.email)" (keyup)="onEmail(signUp.email)" required />
+                                    <i class="ace-icon fa fa-envelope"></i>
+                                </span>
+                                <span class="help-block col-xs-12 col-sm-reset inline" style="font-size: 12px;"
+                                    *ngIf="err.email">
+                                    {{ txtNull(signUp.email,'รูปแบบอักขระ Email ไม่ถูกต้อง!') }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="form-group" [class.has-error]="err.tel">
+                            <label for="tel" class="col-md-3 control-label no-padding-right hidden-xs hidden-sm">
+                                เบอร์มือถือ:
+                            </label>
+                            <div class="col-md-9 block clearfix">
+                                <span class="block input-icon input-icon-right">
+                                    <input [(ngModel)]="signUp.tel" name="tel" id="tel" type="tel" class="form-control"
+                                        placeholder="เบอร์โทรศัพท์มือถือ" (change)="onTel(signUp.tel)"
+                                        (blur)="onTel(signUp.tel)" (keyup)="onTel(signUp.tel)" minlength="10"
+                                        (keypress)="main.isNumberKey($event)" maxLength="10" required />
+                                    <i class="ace-icon fa fa-phone-square"></i>
+                                </span>
+                                <span class="help-block col-xs-12 col-sm-reset inline" style="font-size: 12px;"
+                                    *ngIf="err.tel">
+                                    {{ txtNull(signUp.tel,'เบอร์โทรศัพท์มือถือของคุณไม่ถูกต้อง') }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="linetoken" class="col-md-3 control-label no-padding-right hidden-xs hidden-sm">
+                                Line Token:
+                            </label>
+                            <div class="col-md-9 block clearfix">
+                                <span class="block input-icon input-icon-right">
+                                    <input [(ngModel)]="signUp.linetoken" name="linetoken" id="linetoken" type="text"
+                                        class="form-control" placeholder="Line Token ส่วนตัว(ถ้ามี)" />
+                                    <i class="ace-icon fa fa-expeditedssl"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+                <div class="row">
+                    <div class="space-12"></div>
+                    <fieldset class="col-xs-6 col-sm-6 col-md-6">
+                        <button (click)="onReset()" type="button" class="pull-right btn btn-sm btn-default">
+                            <i class="ace-icon fa" [ngClass]="(editProfile)?'fa-trash-o':'fa-refresh'"></i>
+                            <span class="bigger-110">
+                                {{ (editProfile)?'ยกเลิก':'รีเซ็ต' }}
+                            </span>
+                        </button>
+                    </fieldset>
+                    <fieldset class="col-xs-6 col-sm-6 col-md-6">
+                        <button type="submit" class="pull-left btn btn-sm btn-primary">
+                            <i class="ace-icon fa fa-floppy-o"></i>
+                            <span class="bigger-110">บันทึก</span>
+                        </button>
+                    </fieldset>
+                </div>
+            </form>
+        </div>
+        <div *ngIf="!editProfile" class="toolbar center">
+            <a routerLink="/signin" class="back-to-login-link">
+                <i class="ace-icon fa fa-arrow-left"></i>
+                กลับหน้าเข้าสู่ระบบ
+            </a>
+        </div>
+    </div><!-- /.widget-body -->
+</div><!-- /.signup-box -->
+
+<div *ngIf="signUp && signUpSuccess" id="signup-box" class="signup-box visible widget-box no-border">
+    <div class="widget-body">
+        <div class="widget-main center">
+            <h1 class="green">
+                <i class="ace-icon fa fa-check-circle-o"></i> ยินดีด้วย !
+            </h1>
+            <h1 class="header green lighter bigger">
+                การลงทะเบียนใกล้จะสมบูรณ์แล้ว.
+            </h1>
+            <div class="row">
+                <div class="space-6"></div>
+                <p style="font-size: 24px;">
+                    คุณต้องทำการยืนยันบัญชีผู้ใช้งานระบบ Smart Profile สำนักงานสาธารณสุขจังหวัดชัยภูมิ <br />
+                    ที่ Email: <a href="mailto:{{ signUp?.email }}">{{ signUp?.email }}</a> <br />
+                    ภายในเวลา 1 ชั่วโมง นับตั้งแต่ {{ dateNow | thaidate:'medium' }} เวลา
+                    {{ dateNow | date:'HH:mm:ss' }} น. <br />
+                    <u style="color: red;">มิฉะนั้น บัญชีผู้ใช้งานของคุณจะยังไม่สามารถใช้งานได้.</u>
+                </p>
+                <div class="space-12"></div>
+            </div>
+        </div>
+        <a [routerLink]="['/signin']" class="btn btn-info btn-block">
+            <i class="ace-icon fa fa-arrow-left"></i>
+            กลับหน้าเข้าสู่ระบบ
+        </a>
+    </div>
+</div>
+<!-- <div class="widget-main center">
+    <h1 class="green">
+        <i class="ace-icon fa fa-check-circle-o"></i> ยินดีด้วย !
+    </h1>
+    <h1 class="header green lighter bigger">
+        {{ signUpSuccess.?title }}
+    </h1>
+    <div class="row">
+        <div class="space-6"></div>
+        <p style="font-size: 24px;">
+            {{ signUpSuccess.?text }}
+        </p>
+    </div>
+</div> -->

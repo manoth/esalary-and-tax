@@ -1,0 +1,200 @@
+<div id="navbar" class="navbar navbar-default ace-save-state navbar-fixed-top">
+    <app-header [decode]="decode" (editEmail)="editEmail($event)"></app-header>
+</div>
+<div class="main-container ace-save-state" id="main-container">
+    <script type="text/javascript">
+        try { ace.settings.loadState('main-container') } catch (e) { }
+    </script>
+    <div class="sidebar responsive ace-save-state sidebar-fixed" data-sidebar="true" data-sidebar-hover="true"
+        data-sidebar-scroll="true" id="sidebar">
+        <app-menu [decode]="decode"></app-menu>
+    </div>
+    <div class="main-content">
+        <div class="main-content-inner">
+            <router-outlet></router-outlet>
+        </div>
+    </div><!-- /.main-content -->
+    <div class="footer">
+        <app-footer></app-footer>
+    </div>
+    <a href="#" id="btn-scroll-up" class="btn-scroll-up btn btn-sm btn-inverse">
+        <i class="ace-icon fa fa-angle-double-up icon-only bigger-110"></i>
+    </a>
+</div><!-- /.main-container -->
+
+<div class="modal fade" id="modal-confirm">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div *ngIf="loading" class="widget-box-overlay">
+                <i class="ace-icon loading-xx loading-icon fa fa-spinner fa-pulse fa-3x fa-fw white"
+                    style="top: 50%;"></i>
+            </div>
+            <form enctype="multipart/form-data" class="form-horizontal">
+                <div class="modal-header widget-color-green2 green">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h2 class="modal-title center">
+                        <i class="fa fa-check-square-o" aria-hidden="true"></i>
+                        ระบบยืนยันการย้ายสถานที่ปฏิบัติงาน
+                    </h2>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div *ngIf="user" class="col-md-12 center" style="font-size: 16px;">
+                            ระบบได้ตรวจสอบพบว่ามีบุคลากร จำนวน {{ user.length }} คน ได้ย้ายสถานที่ปฏิบัติงานมายัง<br>
+                            {{ user[0].hospname }}
+                            {{ (user[0].workgroup)?' / '+user[0].workgroup:'' }}
+                            {{ (user[0].workgroup_sub)?' / '+user[0].workgroup_sub:'' }}<br>
+                            ซึ่งเป็นสถานที่ปฏิบัติงานเดียวกันกับคุณ ใช่หรือไม่ ?
+                            <div class="space-6"></div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="box-body table-responsive no-padding">
+                            <table class="table table-bordered table-hover table-striped headercenter">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>ชื่อ-สกุล</th>
+                                        <th>ตำแหน่ง</th>
+                                        <th style="width: 160px;"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let u of user; let i=index;">
+                                        <td class="center">{{ i+1 }}</td>
+                                        <td>{{ u.pname }}{{ u.fname }} {{ u.lname }}</td>
+                                        <td>{{ u.position }}</td>
+                                        <td>
+                                            <button (click)="onConfirm(u,1)" type="button"
+                                                class="btn btn-minier btn-success pull-left">
+                                                <i class="ace-icon fa fa-check"></i>
+                                                <span class="bigger-110">ยืนยัน</span>
+                                            </button>
+                                            <button (click)="onConfirm(u,0)" type="button"
+                                                class="btn btn-minier btn-danger pull-right">
+                                                <i class="ace-icon fa fa-times"></i>
+                                                <span class="bigger-110">ปฏิเสธ</span>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer center">
+                    <button type="button" data-dismiss="modal" aria-label="Close" class="btn btn-xs btn-default">
+                        <i class="fa fa-times-circle" aria-hidden="true"></i>
+                        Close
+                    </button>
+                </div>
+            </form>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+<div class="modal fade" id="modal-edit-email">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form enctype="multipart/form-data" class="form-horizontal" (ngSubmit)="onEditEmail()">
+                <div class="modal-header widget-color-orange orange">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h2 class="modal-title center">
+                        <i class="fa fa-pencil" aria-hidden="true"></i>
+                        แก้ไข Email Address ให้กับสมาชิก
+                    </h2>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group" [class.has-error]="cidError">
+                                <label for="cid_editmail"
+                                    class="col-md-3 control-label no-padding-right hidden-xs hidden-sm">
+                                    รหัสบัตรประชาชน:
+                                </label>
+                                <div class="col-md-8 block clearfix">
+                                    <span class="block input-icon input-icon-right">
+                                        <input [(ngModel)]="edit.cid" name="cid" id="cid_editmail" type="text"
+                                            class="form-control" placeholder="รหัสบัตรประชาชน"
+                                            (change)="onCid(edit.cid)" (blur)="onCid(edit.cid)"
+                                            (keyup)="onCid(edit.cid)" minlength="13" required />
+                                        <i class="ace-icon fa fa-id-card-o"></i>
+                                    </span>
+                                    <span class="help-block col-xs-12 col-sm-reset inline" style="font-size: 12px;"
+                                        *ngIf="cidError">
+                                        {{ (edit.cid)?'ไม่พบรหัสบัตรประชาชนนี้ในฐานข้อมูล !':'จำเป็นต้องมีข้อมูล !' }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div *ngIf="profile" class="col-md-12">
+                            <div class="form-group">
+                                <label for="name" class="col-md-3 control-label no-padding-right hidden-xs hidden-sm">
+                                    ชื่อ - สกุล:
+                                </label>
+                                <div class="col-md-8 block clearfix">
+                                    <span class="block input-icon input-icon-right">
+                                        <input [value]="profile.pname + profile.fname+ ' ' + profile.lname" name="name"
+                                            id="name" type="text" class="form-control" placeholder="ชื่อ - สกุล"
+                                            disabled />
+                                        <i class="ace-icon fa fa-user"></i>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="email_old"
+                                    class="col-md-3 control-label no-padding-right hidden-xs hidden-sm">
+                                    Email เก่า:
+                                </label>
+                                <div class="col-md-8 block clearfix">
+                                    <span class="block input-icon input-icon-right">
+                                        <input [value]="profile.email" name="email_old" id="email_old" type="text"
+                                            class="form-control" placeholder="Email เก่า" disabled />
+                                        <i class="ace-icon fa fa-envelope"></i>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="form-group" [class.has-error]="emailError">
+                                <label for="email_edit"
+                                    class="col-md-3 control-label no-padding-right hidden-xs hidden-sm">
+                                    Email ใหม่:
+                                </label>
+                                <div class="col-md-8 block clearfix">
+                                    <span class="block input-icon input-icon-right">
+                                        <input [(ngModel)]="edit.email" name="email" id="email_edit" type="text"
+                                            class="form-control" placeholder="Email ใหม่" (change)="onEmail(edit.email)"
+                                            (blur)="onEmail(edit.email)" (keyup)="onEmail(edit.email)" />
+                                        <i class="ace-icon fa fa-envelope-o"></i>
+                                    </span>
+                                    <span class="help-block col-xs-12 col-sm-reset inline" style="font-size: 12px;"
+                                        *ngIf="emailError">
+                                        {{ (edit.email)?'รูปแบบ Email ไม่ถูกต้อง !':'จำเป็นต้องมีข้อมูล !' }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="space-6"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer center">
+                    <button type="button" data-dismiss="modal" aria-label="Close" class="btn btn-xs btn-default">
+                        <i class="fa fa-times-circle" aria-hidden="true"></i>
+                        ยกเลิก
+                    </button>
+                    <button type="submit" class="btn btn-xs btn-info">
+                        <i class="fa fa-floppy-o" aria-hidden="true"></i>
+                        บันทึก
+                    </button>
+                </div>
+            </form>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>

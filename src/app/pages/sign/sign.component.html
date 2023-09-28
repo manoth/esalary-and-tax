@@ -1,0 +1,30 @@
+<div class="main-container" [class.title-padding-top]="path!='signup'">
+    <div *ngIf="overlay" class="widget-box-overlay">
+        <i class="ace-icon loading-icon fa fa-spinner fa-pulse fa-3x fa-fw white" style="top: 50%;"></i>
+    </div>
+    <div class="main-content">
+        <div class="row">
+            <div class="col-sm-10 col-sm-offset-1">
+                <div [class.login-container]="path!='signup'">
+                    <div class="center">
+                        <img *ngIf="path!='signup'" src="assets/images/moph-logo.gif"
+                            alt="สำนักงานสาธารณสุขจังหวัดชัยภูมิ" style="width: 80px;">
+                        <h1>
+                            <i class="ace-icon fa fa-user yellow"></i>
+                            <span class="red"> Smart </span>
+                            <span class="green" id="id-text2">Acount Center</span>
+                        </h1>
+                        <h4 class="blue" id="id-company-text">&copy; Chaiyaphum Provincial Health Office</h4>
+                    </div>
+                    <div class="space-6"></div>
+                    <div class="position-relative">
+                        <app-sign-in *ngIf="path=='signin'" (onSignIn)="onSignIn($event)"></app-sign-in>
+                        <app-sign-up *ngIf="path=='signup'" [signUpSuccess]="signUpSuccess" [dateNow]="dateNow"
+                            (onSignUp)="onSignUp($event)"></app-sign-up>
+                        <app-forgot *ngIf="path=='forgot'"></app-forgot>
+                    </div>
+                </div><!-- /.col -->
+            </div><!-- /.row -->
+        </div><!-- /.main-content -->
+    </div><!-- /.main-container -->
+</div>

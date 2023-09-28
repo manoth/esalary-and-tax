@@ -1,0 +1,76 @@
+<div *ngIf="loading" class="widget-box-overlay">
+    <i class="ace-icon loading-xx loading-icon fa fa-spinner fa-pulse fa-3x fa-fw white" style="top: 50%;"></i>
+</div>
+<app-breadcrumbs [subTitle]="'ระบบยืนยันการย้ายสถานที่ปฏิบัติงาน'"></app-breadcrumbs>
+<div class="page-content">
+    <div class="widget-main">
+        <h4 class="header blue lighter bigger center">
+            <i class="ace-icon fa fa-hospital-o"></i>
+            ระบบยืนยันการย้ายสถานที่ปฏิบัติงาน
+        </h4>
+        <div class="row">
+            <div class="col-sm-12 col-md-12">
+                <div class="row">
+                    <div class="box-body table-responsive no-padding">
+                        <table class="table table-bordered table-hover table-striped headercenter">
+                            <thead>
+                                <tr>
+                                    <th rowspan="2">#</th>
+                                    <th rowspan="2">ชื่อ-สกุล</th>
+                                    <th rowspan="2">ตำแหน่ง</th>
+                                    <th colspan="3">สถานที่ย้ายเข้า</th>
+                                    <th rowspan="2">วันที่ยื่นคำขอร้อง</th>
+                                    <th rowspan="2">ยืนยัน</th>
+                                    <th rowspan="2">ลบ</th>
+                                </tr>
+                                <tr>
+                                    <th>สถานที่ปฏิบัติงาน</th>
+                                    <th>กลุ่มงาน / แผนก</th>
+                                    <th>งาน / แผนกย่อย</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let u of user; let i=index;">
+                                    <td class="center">{{ i+1 }}</td>
+                                    <td>{{ u.pname }}{{ u.fname }} {{ u.lname }}</td>
+                                    <td>{{ u.position }} {{ u.level }}</td>
+                                    <td>{{ u.hospname }}</td>
+                                    <td>{{ u.workgroup }}</td>
+                                    <td>{{ u.workgroup_sub }}</td>
+                                    <td>
+                                        {{ (u.d_update>'0000-00-00')?(u.d_update | thaidate:'medium'):'-' }} เวลา
+                                        {{ (u.d_update>'0000-00-00')?(u.d_update | date:'HH:mm:ss':'utc'):'-' }} น.
+                                    </td>
+                                    <td class="center">
+                                        <div class="btn-group">
+                                            <button (click)="onConfirm(u,1)" type="button"
+                                                class="btn btn-xs btn-primary">
+                                                <i class="ace-icon fa fa-check-square-o bigger-120"></i>
+                                                ยืนยัน
+                                            </button>
+                                        </div>
+                                    </td>
+                                    <td class="center">
+                                        <div class="btn-group">
+                                            <button (click)="onConfirm(u,0)" type="button"
+                                                class="btn btn-xs btn-danger">
+                                                <i class="ace-icon fa fa-trash bigger-120"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tbody *ngIf="!user">
+                                <tr>
+                                    <td colspan="9" class="center">
+                                        ไม่พบข้อมูลคำขอร้องการยืนยันการย้ายสถานที่ปฏิบัติงาน
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

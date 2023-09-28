@@ -1,0 +1,649 @@
+<div *ngIf="loading" class="widget-box-overlay">
+    <i class="ace-icon loading-xx loading-icon fa fa-spinner fa-pulse fa-3x fa-fw white" style="top: 50%;"></i>
+</div>
+<app-breadcrumbs [subTitle]="'ระบบยื่นใบลาออนไลน์'"></app-breadcrumbs>
+<div *ngIf="decode" class="page-content">
+    <div class="page-header center" style="padding-top: 30px;">
+        <h1 class="orange">
+            <i class="menu-icon fa fa-envelope"></i>
+            ระบบยื่นใบลาออนไลน์
+        </h1>
+        <p></p>
+        -:- สำนักงานสาธารณสุขจังหวัดชัยภูมิ -:-
+        <p></p>
+        <div [hidden]="getPdf" *ngIf="!adminPage" class="pull-left" (click)="staff()">
+            [ <a href="javascript:void(0);">ไปยังหน้าสำหรับเจ้าหน้าที่</a> ]
+        </div>
+        <div [hidden]="getPdf" *ngIf="adminPage" class="pull-left" (click)="logout()">
+            [ <a href="javascript:void(0);">ออกจากหน้าสำหรับเจ้าหน้าที่</a> ]
+        </div>
+        <div [hidden]="!getPdf" class="row">
+            <div class="space-6"></div>
+            <div class="col-xs-4 col-sm-4 col-md-4 center">
+                <button (click)="onBack()" type="button" class="center btn btn-xs btn-default">
+                    <i class="ace-icon fa fa-hand-o-left"></i>
+                    <span class="bigger-110"> กลับ</span>
+                </button>
+            </div>
+            <div class="col-xs-4 col-sm-4 col-md-4 center">
+                <button (click)="onDownload()" type="button" class="center btn btn-xs btn-success">
+                    <i class="ace-icon fa fa-download"></i>
+                    <span class="bigger-110"> ดาวน์โหลด</span>
+                </button>
+            </div>
+            <div class="col-xs-4 col-sm-4 col-md-4 center">
+                <button (click)="onPrint()" type="button" class="center btn btn-xs btn-primary">
+                    <i class="ace-icon fa fa-print"></i>
+                    <span class="bigger-110"> พิมพ์</span>
+                </button>
+            </div>
+        </div>
+    </div><!-- /.page-header -->
+    <div [hidden]="getPdf" class="row">
+        <div class="col-xs-12">
+            <div class="pull-left" *ngIf="!adminPage">
+                สถิติการลาในปีงบประมาณ {{ +bYear+543 }}
+                <table class="table table-bordered headercenter">
+                    <thead>
+                        <tr>
+                            <th>ประเภทลา</th>
+                            <th>ลาได้สูงสุด <br /> (วันทำการ)</th>
+                            <th>ลามาแล้ว <br /> (วันทำการ)</th>
+                            <th>คงเหลือ <br /> (วันทำการ)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let item of statisticsAllInYear;">
+                            <td>{{ item.type_name }}</td>
+                            <td class="text-center">
+                                {{ (item.type_id==1) ? item.leave_max : '~' }}
+                            </td>
+                            <td class="text-center">{{ item.leave_info }}</td>
+                            <td class="text-center">
+                                {{ (item.type_id==1) ? (item.leave_max-item.leave_info) : '~' }}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div [hidden]="getPdf" class="row">
+        <div class="col-xs-12">
+            <div class="table-header">
+                <i class="menu-icon fa fa-bar-chart"></i>
+                <span *ngIf="!adminPage">
+                    ประวัติการยืนใบลาออนไลน์ที่ผ่านมา
+                </span>
+                <span *ngIf="adminPage">
+                    ข้อมูลการยื่นใบลาออนไลน์ที่ {{ (eleaveStatus==1)?'รอการอนุมัติ':'อนุมัติแล้ว' }}
+                </span>
+            </div>
+            <div class="box-body table-responsive no-padding">
+                <table class="table table-bordered table-hover table-striped headercenter">
+                    <thead>
+                        <tr>
+                            <td colspan="11">
+                                <div class="col-sm-3 col-md-2" *ngIf="adminPage">
+                                    <select [(ngModel)]="eleaveStatus" name="eleaveStatus" id="eleaveStatus"
+                                        (change)="getEleave(bYear)" class="form-control">
+                                        <option value=1>รอการอนุมัติ</option>
+                                        <option value=3>อนุมัติแล้ว</option>
+                                    </select>
+                                </div>
+                                <div class="col-sm-4 col-md-4 pull-right" *ngIf="adminPage">
+                                    <!-- <input type="text" class="form-control" [(ngModel)]="searchName" name="searchName"
+                                        id="searchName" placeholder="ค้นหาด้วยชื่อจริง..." /> -->
+                                    <div class="input-group">
+                                        <span class="input-group-addon">
+                                            <i class="ace-icon fa fa fa-search"></i>
+                                        </span>
+                                        <input [(ngModel)]="searchName" name="searchTerm" type="text"
+                                            class="form-control nav-search-input" placeholder="ค้นหาด้วยชื่อจริง ...">
+                                    </div>
+                                </div>
+                                <div class="col-sm-3 col-md-3" *ngIf="!adminPage || eleaveStatus!=1">
+                                    <div class="col-sm-5 col-md-5" style="margin-top: 7px;">ปีงบประมาณ:</div>
+                                    <div class="col-sm-7 col-md-7">
+                                        <select [(ngModel)]="bYear" name="bYear" id="bYear" (change)="getEleave(bYear)"
+                                            class="form-control">
+                                            <option *ngFor="let bYear of eleaveBYear" [value]="bYear.b_year">
+                                                {{ +bYear.b_year+543 }}
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="pull-right" *ngIf="!adminPage">
+                                    <button type="button" class="center btn btn-xs btn-success"
+                                        (click)="onCreateEleave()">
+                                        <i class="ace-icon fa fa fa-pencil"></i>
+                                        <span class="bigger-110"> สร้างใบลา</span>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>#</th>
+                            <th>สถานะ</th>
+                            <th>วันที่ทำรายการ</th>
+                            <th>ชื่อ-สกุล</th>
+                            <th>ประเภทการลา</th>
+                            <!-- <th>เนื่องจาก</th> -->
+                            <th>จากวันที่</th>
+                            <th>ถึงวันที่</th>
+                            <th>จำนวนวัน</th>
+                            <th>รายละเอียด</th>
+                            <th>เอกสารยืนยัน</th>
+                            <th>
+                                {{ (adminPage)?(eleaveStatus==3)?'ยกเลิกวันลา':'การอนุมัติ':'ยกเลิกวันลา' }}
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let l of rowsLeave | filter:{ fname: searchName}; let i=index;">
+                            <td class="center">
+                                {{ i+1 }}
+                            </td>
+                            <td class="center">
+                                <span *ngIf="l.status==0" class="text-danger">รออัพโหลดเอกสารยืนยัน</span>
+                                <span *ngIf="l.status==1" class="text-warning">รอการอนุมัติ</span>
+                                <span *ngIf="l.status==2" class="text-danger">{{ l.comment }}</span>
+                                <span *ngIf="l.status==3" class="text-success">อนุมัติแล้ว</span>
+                            </td>
+                            <td class="center">
+                                {{ l.dated | thaidate: 'short' }}
+                            </td>
+                            <td>
+                                {{ l.pname }}{{ l.fname }} {{ l.lname }}
+                            </td>
+                            <td>
+                                {{ l.type_name }}
+                            </td>
+                            <!-- <td>
+                                {{ l.reason }}
+                            </td> -->
+                            <td class="center">
+                                {{ (l.start_time && l.start_time>='13:00:00') ? 'บ่าย' : 'เช้า' }}
+                                <br />
+                                {{ l.start_date | thaidate: 'short' }}
+                            </td>
+                            <td class="center">
+                                {{ (l.end_time && l.end_time
+                                <='12:00:00') ? 'เที่ยง' : 'เย็น' }} <br />
+                                {{ l.end_date | thaidate: 'short' }}
+                            </td>
+                            <td class="center">
+                                {{ l.amount_days }}
+                            </td>
+                            <td class="center" style="vertical-align: middle;">
+                                <div class="btn-group">
+                                    <button (click)="onDetail(l)" type="button" class="btn btn-xs btn-info">
+                                        <i class="ace-icon fa fa-print bigger-120"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            <td class="center" style="vertical-align: middle;">
+                                <div class="btn-group">
+                                    <button *ngIf="l.status==0 || l.status==2" (click)="onClickUpload(l)" type="button"
+                                        class="btn btn-xs btn-success">
+                                        <i class="ace-icon fa fa-cloud-upload bigger-120"></i>
+                                    </button>
+                                    <a *ngIf="l.status==1 || l.status==3" (click)="showImage(l.id)" type="button"
+                                        class="btn btn-xs btn-success" href="javascript:void(0)">
+                                        <i *ngIf="l.image_type=='image'"
+                                            class="ace-icon fa fa-file-image-o bigger-120"></i>
+                                        <i *ngIf="l.image_type=='pdf'" class="ace-icon fa fa-file-pdf-o bigger-120"></i>
+                                    </a>
+                                </div>
+                            </td>
+                            <td *ngIf="!adminPage || eleaveStatus==3" class="center" style="vertical-align: middle;">
+                                <div class="btn-group">
+                                    <button *ngIf="l.status==0 || l.status==2 || eleaveStatus==3"
+                                        (click)="onDel(l.start_date, l.end_date, l.type_id, l.type_name, l.amount_days, l.id, l)"
+                                        type="button" class="btn btn-xs btn-danger">
+                                        <i class="ace-icon fa fa-trash-o bigger-120"></i>
+                                    </button>
+                                    <p *ngIf="!adminPage && (l.status==1 || l.status==3)">
+                                        ติดต่อการเจ้าหน้าที่
+                                    </p>
+                                </div>
+                            </td>
+                            <td *ngIf="adminPage && eleaveStatus!=3" class="center"
+                                style="vertical-align: middle; width: 80px;">
+                                <div class="btn-group">
+                                    <button (click)="staffApprovd(l)" type="button" class="btn btn-xs btn-success">
+                                        <i class="ace-icon fa fa-check bigger-120"></i>
+                                    </button>
+                                    <button (click)="staffComment(l.id)" type="button" class="btn btn-xs btn-danger">
+                                        <i class="ace-icon fa fa-remove bigger-120"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                    <tfoot *ngIf="(rowsLeave | filter:{ fname: searchName })?.length==0">
+                        <tr>
+                            <td colspan="11" class="center">
+                                <span *ngIf="!adminPage">
+                                    ไม่พบประวัติการยืนใบลาออนไลน์ในปีงบประมาณ {{ +bYear+543 }}
+                                </span>
+                                <span *ngIf="adminPage && eleaveStatus==1">
+                                    ไม่พบข้อมูลใบลาออนไลน์ที่รอการอนุมัติ...
+                                </span>
+                                <span *ngIf="adminPage && eleaveStatus==3">
+                                    ไม่พบข้อมูลใบลาออนไลน์ที่อนุมัติแล้ว...
+                                </span>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="space-24"></div>
+        </div>
+    </div><!-- /.row -->
+    <div [hidden]="!getPdf" class="row">
+        <div class="col-xs-12">
+            <div class="col-sm-10 col-sm-offset-1" style="border-style: dashed; border: width 5px;">
+                <!-- <iframe src="" width="100%" height="800"></iframe> -->
+                <pdf-viewer [src]="pdfFile" [original-size]="false" [show-borders]="true"></pdf-viewer>
+            </div>
+        </div>
+    </div>
+    <div class="space-12"></div>
+</div>
+
+<div class="modal fade" id="modal-add-eleave">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form class="form-horizontal">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h2 class="modal-title center">
+                        <i class="ace-icon fa fa fa-send"></i>
+                        สร้างใบลาออนไลน์
+                    </h2>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12 col-md-12">
+                            <div class="position-relative">
+                                <div class="space-6"></div>
+                                <div class="form-group">
+                                    <label for="write_at" class="col-sm-3 control-label no-padding-right">
+                                        เงื่อนไขการใช้งาน:
+                                    </label>
+                                    <label class="col-sm-8 block clearfix"
+                                        style="padding-top:7px; font-size: 10px; color:blue;">
+                                        1. การลาทุกประเภทสามารถลาล่วงหน้า หรือย้อนหลังได้ไม่เกิน 2 เดือน<br />
+                                        2. การลาป่วย สามารถลาป่วยได้เท่าที่ป่วยจริง หากลาป่วยเกิน 2 วัน
+                                        ให้แนบใบรับรองแพทย์<br />
+                                        3. การลาป่วยที่มีระยะเวลานาน (ลาป่วยเพื่อรักษาตัว)
+                                        ให้ยื่นและตรวจสอบวันลาได้ที่กลุ่มงานบริหารทรัพยากรบุคคล<br />
+                                        4. การลาพักผ่อนที่ต่อเนื่องจากวันหยุดนักขัตฤกษ์ (ก่อน/หลัง)
+                                        ให้แนบบันทึกข้อความเสนอเหตุผลความจำเป็น
+                                        ต่อนายแพทย์สาธารณสุขจังหวัดชัยภูมิด้วย<br />
+                                        5. การลาทุกประเภท กรณีข้ามปีงบประมาณ จะไม่สามารถดำเนินการยื่นออนไลน์ได้
+                                        ให้ติดต่อกลุ่มงานบริหารทรัพยากรบุคคล<br />
+                                        6. หากไม่สามารถดำเนินการยื่นใบลาออนไลน์ได้ทุกกรณี
+                                        ให้ติดต่อกลุ่มงานบริหารทรัพยากรบุคคล หรือศูนย์เทคโนโลยีและสารสนเทศ
+                                        (ICT)
+                                    </label>
+                                </div>
+                                <div class="form-group">
+                                    <label for="write_at" class="col-sm-3 control-label no-padding-right">
+                                        เขียนที่:
+                                    </label>
+                                    <label class="col-sm-7 block clearfix" style="padding-top:7px;">
+                                        {{ eleave.write_at }}
+                                    </label>
+                                </div>
+                                <div class="form-group">
+                                    <label for="dated" class="col-sm-3 control-label no-padding-right">
+                                        ลงวันที่:
+                                    </label>
+                                    <label class="col-sm-7 block clearfix" style="padding-top:7px;">
+                                        {{ toDay | thaidate:'medium' }}
+                                    </label>
+                                </div>
+                                <div class="form-group">
+                                    <label for="type_id" class="col-sm-3 control-label no-padding-right">
+                                        ประเภทการลา:
+                                    </label>
+                                    <label class="col-sm-7 block clearfix">
+                                        <select (change)="getStatistics(eleave.type_id, startDate)" name="type_id"
+                                            [(ngModel)]="eleave.type_id" id="type_id" class="form-control"
+                                            style="width: 100%;">
+                                            <option *ngFor="let item of eleaveType" [value]="item.type_id">
+                                                {{ item.type_name }}
+                                            </option>
+                                        </select>
+                                    </label>
+                                </div>
+                                <div class="form-group">
+                                    <label for="startDate" class="col-sm-3 control-label no-padding-right">
+                                        จากวันที่:
+                                    </label>
+                                    <label class="col-sm-7 block clearfix">
+                                        <my-date-picker style="width: 300px;" name="startDate" id="startDate"
+                                            [options]="myDateOptions1" [(ngModel)]="startDate"
+                                            (dateChanged)="onChangStartDate($event)" [placeholder]="'วัน เดือน ปี'"
+                                            [locale]="'th'" required>
+                                        </my-date-picker>
+                                    </label>
+                                </div>
+                                <div class="form-group">
+                                    <label for="endDate" class="col-sm-3 control-label no-padding-right">
+                                        ถึงวันที่:
+                                    </label>
+                                    <label class="col-sm-7 block clearfix">
+                                        <my-date-picker style="width: 300px;" name="endDate" id="endDate"
+                                            [options]="myDateOptions2" [(ngModel)]="endDate"
+                                            (dateChanged)="onChangEndDate($event)" [placeholder]="'วัน เดือน ปี'"
+                                            [locale]="'th'" required>
+                                        </my-date-picker>
+                                    </label>
+                                </div>
+                                <div class="form-group">
+                                    <label for="timeStr" class="col-sm-3 control-label no-padding-right">
+                                        ช่วงเวลา:
+                                    </label>
+                                    <label class="col-sm-​8 block clearfix">
+                                        <select [(ngModel)]="eleave.start_time" (change)="onChangTime()" id="startTime"
+                                            name="startTime" class="col-sm-​3"
+                                            style="margin-left: 10px; margin-right: 10px;">
+                                            <option value="00:00:00">
+                                                เช้า
+                                            </option>
+                                            <option value="13:00:00">
+                                                บ่าย
+                                            </option>
+                                        </select>
+                                        <span class="center col-sm-​2">ถึง</span>
+                                        <select [(ngModel)]="eleave.end_time" (change)="onChangTime()" id="endTime"
+                                            name="endTime" class="col-sm-​3"
+                                            style="margin-left: 10px; margin-right: 10px;">
+                                            <option value="12:00:00">
+                                                เที่ยง
+                                            </option>
+                                            <option value="23:59:59">
+                                                เย็น
+                                            </option>
+                                        </select>
+                                    </label>
+                                </div>
+                                <div class="form-group">
+                                    <label for="endDate" class="col-sm-3 control-label no-padding-right">
+                                        คิดเป็นวันทำการ:
+                                    </label>
+                                    <label class="col-sm-7 block clearfix" style="padding-top:7px;">
+                                        {{ eleave.amount_days }} วัน
+                                        <span style="font-size: 10px; color: red;">
+                                            (ไม่รวมวันเสาร์ วันอาทิตย์ และวันหยุดนักขัตฤกษ์)
+                                        </span>
+                                    </label>
+                                </div>
+                                <div class="form-group" [class.has-error]="errEleave.reason">
+                                    <label for="reason" class="col-sm-3 control-label no-padding-right">
+                                        เหตุผลการลา:
+                                    </label>
+                                    <label class="col-sm-8 block clearfix">
+                                        <textarea [(ngModel)]="eleave.reason" placeholder="เหตุผลการลา..."
+                                            class="form-control" name="reason" id="reason"
+                                            (blur)="onErr('reason')"></textarea>
+                                        <span class="help-block col-xs-12 col-sm-reset inline" style="font-size: 10px;"
+                                            *ngIf="errEleave.reason">
+                                            *จำเป็นต้องมีข้อมูล !
+                                        </span>
+                                    </label>
+                                </div>
+                                <div class="form-group" [class.has-error]="errEleave.address">
+                                    <label for="address" class="col-sm-3 control-label no-padding-right">
+                                        สถานที่ติดต่อ:
+                                    </label>
+                                    <label class="col-sm-8 block clearfix">
+                                        <textarea [(ngModel)]="eleave.address"
+                                            placeholder="สถานที่ติดต่อระหว่างที่ลา..." class="form-control"
+                                            name="address" id="address" (blur)="onErr('address')"></textarea>
+                                        <span class="help-block col-xs-12 col-sm-reset inline" style="font-size: 10px;"
+                                            *ngIf="errEleave.address">
+                                            *จำเป็นต้องมีข้อมูล !
+                                        </span>
+                                    </label>
+                                </div>
+                                <div class="form-group" [class.has-error]="errEleave.tel">
+                                    <label for="tel" class="col-sm-3 control-label no-padding-right">
+                                        เบอร์โทรติดต่อ:
+                                    </label>
+                                    <label class="col-sm-8 block clearfix">
+                                        <input type="text" class="form-control" [(ngModel)]="eleave.tel"
+                                            placeholder="เบอร์โทรติดต่อ" name="tel" id="tel" (blur)="onErr('tel')" />
+                                        <span class="help-block col-xs-12 col-sm-reset inline" style="font-size: 10px;"
+                                            *ngIf="errEleave.tel">
+                                            *จำเป็นต้องมีข้อมูล !
+                                        </span>
+                                    </label>
+                                </div>
+                                <div class="form-group">
+                                    <label for="tel" class="col-sm-3 control-label no-padding-right">
+                                        สถิติการลาในปีงบประมาณนี้ <br /> (วันทำการ):
+                                    </label>
+                                    <label class="col-sm-8 block clearfix">
+                                        <table class="table table-bordered headercenter">
+                                            <thead>
+                                                <tr>
+                                                    <th>ประเภทลา</th>
+                                                    <th *ngIf="eleave.type_id==1">ลาได้สูงสุด</th>
+                                                    <th>ลามาแล้ว</th>
+                                                    <th>ลาครั้งนี้</th>
+                                                    <th>รวมเป็น</th>
+                                                    <th>{{ (eleave.type_id==1)?'จะคงเหลือ':'รวมทั้งหมด' }}</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr *ngFor="let item of statisticsAll; let i=index;">
+                                                    <td style="vertical-align: middle;" class="center">
+                                                        {{ item.type_name }}
+                                                    </td>
+                                                    <td style="vertical-align: middle;" *ngIf="eleave.type_id==1"
+                                                        class="center">
+                                                        {{ item.leave_max }}
+                                                    </td>
+                                                    <td style="vertical-align: middle;" class="center">
+                                                        {{ item.leave_info }}
+                                                    </td>
+                                                    <td style="vertical-align: middle;" class="center">
+                                                        {{ (item.type_id==eleave.type_id)? eleave.amount_days : 0 }}
+                                                    </td>
+                                                    <td style="vertical-align: middle;" class="center">
+                                                        {{ ((item.type_id==eleave.type_id)? eleave.amount_days : 0) +
+                                                        item.leave_info }}
+                                                    </td>
+                                                    <td style="vertical-align: middle;" *ngIf="i==0" class="center"
+                                                        [attr.rowspan]="(statisticsAll.length>1)? '2' : '1'">
+                                                        {{
+                                                        (eleave.type_id==1)?item.leave_max-sumDate(statisticsAll):sumDate(statisticsAll)
+                                                        }}
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                        <span
+                                            *ngIf="!main.in_array(decode?.type, ['01', '02']) && main.in_array(eleave.type_id, ['2', '3'])"
+                                            style="font-size: 12px; color:blue;">
+                                            หมายเหตุ: การลาป่วย และลากิจส่วนตัว รวมกันจะต้องไม่เกิน 30 วัน
+                                            ต่อรอบปีงบประมาณ
+                                        </span>
+                                        <div
+                                            *ngIf="main.in_array(decode?.type, ['01', '02']) && main.in_array(eleave.type_id, ['2', '3'])">
+                                            <span style="font-size: 12px; color:blue;">
+                                                หมายเหตุ: การลาป่วย และลากิจส่วนตัว รวมกันจะต้องไม่เกิน 23 วัน
+                                                ต่อรอบการเลื่อนเงินเดือนในแต่ละรอบ (6 เดือน/รอบ)
+                                            </span>
+                                            <p></p>
+                                            <span>สถิติการลาในรอบการเลื่อนเงินเดือนปัจจุบัน</span>
+                                            <table class="table table-bordered headercenter">
+                                                <thead>
+                                                    <tr>
+                                                        <th>ประเภทลา</th>
+                                                        <th>ลามาแล้ว</th>
+                                                        <th>ลาครั้งนี้</th>
+                                                        <th>รวมเป็น</th>
+                                                        <th>รวมทั้งหมด</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr *ngFor="let item of statisticsAll; let i=index;">
+                                                        <td style="vertical-align: middle;" class="center">
+                                                            {{ item.type_name }}
+                                                        </td>
+                                                        <td style="vertical-align: middle;" class="center">
+                                                            {{ item.leave_info_check }}
+                                                        </td>
+                                                        <td style="vertical-align: middle;" class="center">
+                                                            {{ (item.type_id==eleave.type_id)? eleave.amount_days : 0 }}
+                                                        </td>
+                                                        <td style="vertical-align: middle;" class="center">
+                                                            {{ ((item.type_id==eleave.type_id)? eleave.amount_days : 0)
+                                                            +
+                                                            item.leave_info_check }}
+                                                        </td>
+                                                        <td style="vertical-align: middle;" *ngIf="i==0" class="center"
+                                                            [attr.rowspan]="(statisticsAll.length>1)? '2' : '1'">
+                                                            {{ sumDateHalf(statisticsAll) }}
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer center">
+                    <fieldset class="col-xs-6 col-sm-6 col-md-6">
+                        <button type="button" class="pull-right btn btn-sm btn-default" data-dismiss="modal"
+                            aria-label="Close">
+                            <i class="ace-icon fa fa-times-circle-o"></i>
+                            <span class="bigger-110">ยกเลิก</span>
+                        </button>
+                    </fieldset>
+                    <fieldset class="col-xs-6 col-sm-6 col-md-6">
+                        <button type="submit" class="pull-left btn btn-sm btn-primary" (click)="onSave()"
+                            [disabled]="(eleave.amount_days==0) || (0>statistics?.leave_max-(eleave.amount_days+statistics?.leave_info_check))">
+                            <i class="ace-icon fa fa-floppy-o" aria-hidden="true"></i>
+                            <span class="bigger-110">บันทึก</span>
+                        </button>
+                    </fieldset>
+                </div>
+            </form>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+<div class="modal fade" id="modal-upload-doc">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="formUpload" enctype="multipart/form-data" class="form-horizontal">
+                <div class="modal-header green">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h2 class="modal-title center">
+                        <i class="fa fa-upload" aria-hidden="true"></i>
+                        อัพโหลดไฟล์เอกสารยืนยัน
+                    </h2>
+                </div>
+                <div class="modal-body">
+                    <div class="form-heading" style="margin: 0 50px;">
+                        <h4>เงื่อนไขในการอัพโหลดไฟล์</h4>
+                        <ul>
+                            <li>
+                                ไฟล์ที่จะอัพโหลดขึ้นมาจะต้องเป็นไฟล์ชนิด PDF หรือ รูปภาพเท่านั้น
+                            </li>
+                            <li>
+                                เมื่อท่านอัพโหลดเอกสารยืนยันแล้ว จะไม่สามารถแก้ไขหรือเปลี่ยนแปลงข้อมูลได้
+                            </li>
+                            <li>
+                                ฉนั้นกรุณาตรวจสอบข้อมูลการลาให้เรียบร้อยก่อนทำการกด
+                                "<i class="fa fa-cloud-upload" aria-hidden="true"></i>ยืนยันการอัพโหลด"
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="form-body center">
+                        <div class="pair-group" align="center">
+                            <div class="space-12"></div>
+                            <legend style="font-size:16px; color:#333">เลือกไฟล์เพื่ออัพโหลด :</legend>
+                            <div class="col-xs-8 col-sm-8 col-sm-offset-2">
+                                <label class="col-xs-6 col-sm-6">
+                                    <input [(ngModel)]="typeFileUpload" (change)="onChangeTypeFile(typeFileUpload)"
+                                        type="radio" name="sex" value="image/*" class="minimal-red">
+                                    ไฟล์รูปภาพ
+                                </label>
+                                <label class="ccol-xs-6 ol-sm-6">
+                                    <input [(ngModel)]="typeFileUpload" (change)="onChangeTypeFile(typeFileUpload)"
+                                        type="radio" name="sex" value=".pdf" class="minimal-red">
+                                    ไฟล์ PDF
+                                </label>
+                            </div>
+                            <span *ngIf="!uploading" id="bntUpload" class="form-group" [class.has-error]="hasMyfile">
+                                <input #myfile (change)="fileProgress(myfile.files)" type="file" name="myfile"
+                                    [accept]="typeFileUpload" class="btn btn-default" [multiple]="uploadMultiple"
+                                    required="required">
+                                <span *ngIf="hasMyfile" class="help-block col-xs-12 col-sm-reset inline">
+                                    {{ txtMyfileError || 'คุณไม่ได้เลือกไฟล์เพื่อ Upload' }}
+                                </span>
+                            </span>
+                            <div *ngIf="uploading" class="progress progress-striped active" style="width: 60%">
+                                <div class="progress-bar progress-bar-success" style="width: 100%"></div>
+                            </div>
+                            <div *ngIf="imgUrl && !hasMyfile && !uploading">
+                                <p *ngFor="let img of imgUrl">
+                                    <img *ngIf="fileType=='images'" style="border: dashed 2px black; padding: 2px;"
+                                        width="95%" [src]="img" alt="Product Image" />
+                                    <pdf-viewer *ngIf="fileType=='pdf'" [src]="img" [original-size]="false"
+                                        [show-borders]="true">
+                                    </pdf-viewer>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer center">
+                    <button (click)="onUpload()" id="btn-upload" type="submit" class="btn btn-sm btn-success">
+                        <i class="fa fa-cloud-upload" aria-hidden="true"></i>
+                        ยืนยันการอัพโหลด
+                    </button>
+                </div>
+            </form>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+<div *ngIf="imageOnline" class="modal fade" id="imageModal" tabindex="-1" role="dialog"
+    aria-labelledby="imageModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content center" style="padding-bottom: 5px;">
+            <!--Modal body with image-->
+            <div class="modal-body">
+                <p *ngFor="let img of imgUrl">
+                    <img *ngIf="checkFileType(img)" style="border: dashed 2px black; padding: 2px;" width="100%"
+                        [src]="img+'?token='+accessToken" alt="Product Image" />
+                    <pdf-viewer *ngIf="!checkFileType(img)" [src]="pdfData" [original-size]="false"
+                        [show-borders]="true">
+                    </pdf-viewer>
+                </p>
+            </div>
+            <button type="button" class="btn btn-sm btn-default" data-dismiss="modal">
+                ปิด
+            </button>
+        </div>
+    </div>
+</div>

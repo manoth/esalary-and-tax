@@ -1,0 +1,135 @@
+<div>
+    <script type="text/javascript">
+        try { ace.settings.loadState('sidebar') } catch (e) { }
+    </script>
+
+    <div class="sidebar-shortcuts" id="sidebar-shortcuts">
+        <div *ngIf="decode" class="sidebar-shortcuts-large" id="sidebar-shortcuts-large">
+            <button class="btn btn-success" [routerLink]="['/settings/hospital']" style="margin-left: 4px;">
+                <i class="ace-icon fa fa-hospital-o"></i>
+            </button>
+            <button class="btn btn-info" [routerLink]="['/settings/position']" style="margin-left: 4px;">
+                <i class="ace-icon fa fa-address-book-o"></i>
+            </button>
+            <button class="btn btn-warning" [routerLink]="['/settings/profile']" style="margin-left: 4px;">
+                <i class="ace-icon fa fa-user-circle-o"></i>
+            </button>
+            <button class="btn btn-danger" [routerLink]="['/signout']" style="margin-left: 4px;">
+                <i class="ace-icon fa fa-power-off"></i>
+            </button>
+        </div>
+        <div *ngIf="!decode" class="sidebar-shortcuts-large" id="sidebar-shortcuts-large">
+            <button class="btn btn-success" [routerLink]="['/signin']" style="margin-left: 4px;">
+                <i class="ace-icon glyphicon glyphicon-log-in"></i>
+            </button>
+            <button class="btn btn-info" [routerLink]="['/signup']" style="margin-left: 4px;">
+                <i class="ace-icon glyphicon glyphicon-edit"></i>
+            </button>
+        </div>
+
+        <div class="sidebar-shortcuts-mini" id="sidebar-shortcuts-mini">
+            <span class="btn btn-success"></span>
+            <span class="btn btn-info"></span>
+            <span class="btn btn-warning"></span>
+            <span class="btn btn-danger"></span>
+        </div>
+    </div>
+    <!-- /.sidebar-shortcuts -->
+    <ul class="nav nav-list">
+        <li class="header" style="color: white; text-align: center;" *ngIf="authGuard2">
+            <i class="menu-icon fa fa-th"></i>
+            <span class="menu-text"> ระบบทดลองใช้</span>
+        </li>
+        <li routerLinkActive="active" *ngIf="authGuard2">
+            <a [routerLink]="['/apps/letter']">
+                <i class="menu-icon fa fa-book"></i>
+                <span class="menu-text"> หนังสือเวียนภายนอก </span>
+            </a>
+            <b class="arrow"></b>
+        </li>
+        <li routerLinkActive="active" *ngIf="authGuard3">
+            <a [routerLink]="['/apps/go-to-government']" style="font-size: 12px;">
+                <i class="menu-icon fa fa-send"></i>
+                <span class="menu-text" style="font-size: 11px;"> บันทึกขออนุมัติไปราชการ </span>
+            </a>
+            <b class="arrow"></b>
+        </li>
+        <li class="header" style="color: white; text-align: center;">
+            <i class="menu-icon fa fa-th"></i>
+            <span class="menu-text"> ระบบต่างๆ </span>
+        </li>
+        <li routerLinkActive="active">
+            <a [routerLink]="['/apps/meeting']" style="font-size: 12px;">
+                <i class="menu-icon fa fa-calendar"></i>
+                <span class="menu-text" style="font-size: 12px;"> จองห้องประขุมออนไลน์ </span>
+            </a>
+            <b class="arrow"></b>
+        </li>
+        <li routerLinkActive="active">
+            <a [routerLink]="['/apps/esalary']">
+                <i class="menu-icon fa fa-usd"></i>
+                <span class="menu-text"> สลิปเงินเดือนออนไลน์ </span>
+            </a>
+            <b class="arrow"></b>
+        </li>
+        <li routerLinkActive="active">
+            <a [routerLink]="['/apps/tax']" style="font-size: 11px;">
+                <i class="menu-icon fa fa-file-text-o"></i>
+                <span class="menu-text" style="font-size: 11px;"> หนังสือรับรองการหักภาษี </span>
+            </a>
+            <b class="arrow"></b>
+        </li>
+        <!-- <li routerLinkActive="active" *ngIf="authGuard2">
+            <a [routerLink]="['/apps/letter']">
+                <i class="menu-icon fa fa-book"></i>
+                <span class="menu-text"> หนังสือเวียนภายนอก </span>
+            </a>
+            <b class="arrow"></b>
+        </li> -->
+        <li routerLinkActive="active" *ngIf="authGuard3">
+            <a [routerLink]="['/apps/eleave']">
+                <i class="menu-icon fa fa-envelope"></i>
+                <span class="menu-text"> ยื่นใบลาออนไลน์ </span>
+            </a>
+            <b class="arrow"></b>
+        </li>
+        <!-- <li routerLinkActive="active" *ngIf="authGuard3">
+            <a [routerLink]="['/apps/go-to-government']" style="font-size: 11px;">
+                <i class="menu-icon fa fa-send"></i>
+                <span class="menu-text" style="font-size: 11px;"> หนังสือขออนุมัติไปราชการ </span>
+            </a>
+            <b class="arrow"></b>
+        </li> -->
+
+        <li class="header" style="color: white; text-align: center;" *ngIf="authGuard3">
+            <i class="menu-icon fa fa-bar-chart"></i>
+            <span class="menu-text"> รายงาน </span>
+        </li>
+        <li routerLinkActive="active" *ngIf="authGuard3">
+            <a [routerLink]="['/reports/timestamp']">
+                <i class="menu-icon fa fa-clock-o"></i>
+                <span class="menu-text"> ลงเวลาปฏิบัติงาน </span>
+            </a>
+            <b class="arrow"></b>
+        </li>
+        <li routerLinkActive="active" *ngIf="authGuard3">
+            <a [routerLink]="['/reports/schedule']">
+                <i class="menu-icon fa fa-calendar-check-o"></i>
+                <span class="menu-text"> ตารางรายชื่ออยู่เวร </span>
+            </a>
+            <b class="arrow"></b>
+        </li>
+        <li routerLinkActive="active" *ngIf="authGuard3">
+            <a [routerLink]="['/reports/eleave']">
+                <i class="menu-icon fa fa-line-chart"></i>
+                <span class="menu-text"> สถิติการลาออนไลน์ </span>
+            </a>
+            <b class="arrow"></b>
+        </li>
+    </ul><!-- /.nav-list -->
+
+    <div class="sidebar-toggle sidebar-collapse" id="sidebar-collapse">
+        <i id="sidebar-toggle-icon" class="ace-icon fa fa-angle-double-left ace-save-state"
+            data-icon1="ace-icon fa fa-angle-double-left" data-icon2="ace-icon fa fa-angle-double-right"></i>
+    </div>
+</div>

@@ -1,0 +1,277 @@
+<div *ngIf="loading" class="widget-box-overlay">
+    <i class="ace-icon loading-xx loading-icon fa fa-spinner fa-pulse fa-3x fa-fw white" style="top: 50%;"></i>
+</div>
+<app-breadcrumbs [subTitle]="'จัดการสถานที่ปฏิบัติงาน'"></app-breadcrumbs>
+<div class="page-content">
+    <div class="widget-main">
+        <h4 class="header blue lighter bigger center">
+            <i class="ace-icon fa fa-hospital-o"></i>
+            สถานที่ปฏิบัติงานของคุณ
+        </h4>
+        <div class="row">
+            <div class="col-sm-12 col-md-12">
+                <div class="col-sm-10 col-sm-offset-1">
+                    <div class="">
+                        <div class="row">
+                            <div class="col-xs-6 col-sm-6 col-md-6">
+                                <!-- <h4>ประวัติสถานที่ปฏิบัติงาน:</h4> -->
+                            </div>
+                            <div class="col-xs-6 col-sm-6 col-md-6">
+                                <div class="row pull-right">
+                                    <button (click)="onAdd()" type="button" class="btn btn-xs btn-success"
+                                        data-toggle="control-sidebar" data-toggle="modal"
+                                        data-target="#modal-add-hospital" data-backdrop="static">
+                                        <i class="ace-icon fa fa-pencil"></i>
+                                        <span class="bigger-110">เปลี่ยนสถานที่ปฏิบัติงาน</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="table-header" style="background-color: rgb(3, 145, 114);">
+                                <span>
+                                    สถานที่ปฏิบัติงานปัจจุบัน
+                                </span>
+                            </div>
+                            <div class="box-body table-responsive no-padding">
+                                <table class="table table-bordered table-hover table-striped headercenter">
+                                    <thead>
+                                        <tr>
+                                            <th>สถานที่ปฏิบัติงาน</th>
+                                            <th>กลุ่มงาน / แผนก</th>
+                                            <th>งาน / แผนกย่อย</th>
+                                            <th>วัน เดือน ปี ที่เริ่มปฏิบัติงาน</th>
+                                            <th>วัน เดือน ปี ที่ย้ายออก</th>
+                                            <th>สถานะ</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let h of hospitalAll | filter: {'id': decode?.hospital_id}: true">
+                                            <td>
+                                                {{ h.hospname || '-' }}
+                                            </td>
+                                            <td>
+                                                {{ h.workgroup_name || '-' }}
+                                            </td>
+                                            <td>
+                                                {{ h.workgroup_sub_name || '-' }}
+                                            </td>
+                                            <td class="center">
+                                                {{ (h.date_from>'0000-00-00')?(h.date_from | thaidate:'medium'):'-' }}
+                                            </td>
+                                            <td class="center">
+                                                {{ (h.date_to>'0000-00-00')?(h.date_to | thaidate:'medium'):'-' }}
+                                            </td>
+                                            <td class="center">
+                                                {{
+                                                (decode?.hospital_id==h.id)?'สถานที่ปฏิบัติงานปัจจุบัน':(h.active=='N')?'รอการยืนยัน':'ประวัติการย้าย'
+                                                }}
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="table-header">
+                                <!-- <i class="menu-icon fa fa-bar-chart"></i> -->
+                                <span>
+                                    ประวัติสถานที่ปฏิบัติงานที่ผ่านมา
+                                </span>
+                            </div>
+                            <div class="box-body table-responsive no-padding">
+                                <table class="table table-bordered table-hover table-striped headercenter">
+                                    <thead>
+                                        <tr>
+                                            <th>สถานที่ปฏิบัติงาน</th>
+                                            <th>กลุ่มงาน / แผนก</th>
+                                            <th>งาน / แผนกย่อย</th>
+                                            <th>วัน เดือน ปี ที่เริ่มปฏิบัติงาน</th>
+                                            <th>วัน เดือน ปี ที่ย้ายออก</th>
+                                            <th>สถานะ</th>
+                                            <th>แก้ไข</th>
+                                            <th>ลบ</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let h of hospitalAll">
+                                            <td>
+                                                {{ h.hospname || '-' }}
+                                            </td>
+                                            <td>
+                                                {{ h.workgroup_name || '-' }}
+                                            </td>
+                                            <td>
+                                                {{ h.workgroup_sub_name || '-' }}
+                                            </td>
+                                            <td class="center">
+                                                {{ (h.date_from>'0000-00-00')?(h.date_from | thaidate:'medium'):'-' }}
+                                            </td>
+                                            <td class="center">
+                                                {{ (h.date_to>'0000-00-00')?(h.date_to | thaidate:'medium'):'-' }}
+                                            </td>
+                                            <td class="center">
+                                                <span
+                                                    [class]="(decode.hospital_id==h.id)?'green':(h.active=='N')?'orange':''">
+                                                    {{
+                                                    (decode.hospital_id==h.id)?'สถานที่ปฏิบัติงานปัจจุบัน':(h.active=='N')?'รอการยืนยัน':'ประวัติการย้าย'
+                                                    }}
+                                                </span>
+                                            </td>
+                                            <td class="center">
+                                                <div class="btn-group">
+                                                    <button (click)="onEdit(h)" type="button"
+                                                        class="btn btn-xs btn-primary" data-toggle="control-sidebar"
+                                                        data-toggle="modal" data-target="#modal-add-hospital"
+                                                        data-backdrop="static">
+                                                        <i class="ace-icon fa fa-pencil bigger-120"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                            <td class="center">
+                                                <div *ngIf="decode.hospital_id!=h.id || h.active=='N'"
+                                                    class="btn-group">
+                                                    <button (click)="onDel(h.id)" type="button"
+                                                        class="btn btn-xs btn-danger">
+                                                        <i class="ace-icon fa fa-trash-o bigger-120"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modal-add-hospital">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form enctype="multipart/form-data" class="form-horizontal" (ngSubmit)="onSubmit()">
+                <div *ngIf="loadhospital" class="widget-box-overlay">
+                    <i class="ace-icon loading-xx loading-icon fa fa-spinner fa-pulse fa-3x fa-fw white"
+                        style="top: 50%;"></i>
+                </div>
+                <div class="modal-header blue">
+                    <button (click)="onCancel()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h2 class="modal-title center" [ngClass]="(status==1)?'green':'blue'">
+                        <i class="fa" aria-hidden="true" [ngClass]="(status==1)?'fa-plus':'fa-pencil-square-o'"></i>
+                        {{
+                        (editHospital)?(status==2)?'แก้ไขสถานที่ปฏิบัติงาน':'เพิ่มหรือย้ายสถานที่ปฏิบัติงาน':'สถานที่ปฏิบัติงานของคุณ'
+                        }}
+                    </h2>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12 col-md-12">
+                            <div class="col-sm-10 col-sm-offset-1">
+                                <div class="position-relative">
+                                    <div class="space-6"></div>
+                                    <div class="form-group" [class.has-error]="hospitalError">
+                                        <label for="hospcode" class="col-md-4 control-label no-padding-right">
+                                            สถานที่ปฏิบัติงาน:
+                                        </label>
+                                        <label class="col-md-7 block clearfix">
+                                            <select (change)="getWorkgroup(profile.hospcode, '')"
+                                                [(ngModel)]="profile.hospcode" name="hospcode" id="hospcode"
+                                                class="form-control select2" style="width: 100%;"
+                                                [disabled]="status==2">
+                                                <option value="" disabled="disabled">== กรุณาเลือกสถานบริการ ==</option>
+                                                <option *ngFor="let h of hospital" [value]="h.hospcode">
+                                                    [{{ h.hospcode }}]{{ h.hospname }}
+                                                </option>
+                                            </select>
+                                            <span class="help-block col-xs-12 col-sm-reset inline"
+                                                style="font-size: 12px;" *ngIf="hospitalError">
+                                                *กรุณาเลือก สถานที่ปฏิบัติงาน
+                                            </span>
+                                        </label>
+                                    </div>
+                                    <div *ngIf="workgroup" class="form-group">
+                                        <label for="workgroup" class="col-md-4 control-label no-padding-right">
+                                            กลุ่มงาน / แผนก:
+                                        </label>
+                                        <label class="col-md-7 block clearfix">
+                                            <select (change)="getWorkgroupSub(profile.workgroup, '')"
+                                                [(ngModel)]="profile.workgroup" name="workgroup" id="workgroup"
+                                                class="form-control select2" style="width: 100%;"
+                                                [disabled]="status==2">
+                                                <option value="" disabled="disabled">== กรุณาเลือกสถานบริการ ==</option>
+                                                <option *ngFor="let w of workgroup" [value]="w.workgroup_code">
+                                                    {{ w.workgroup }}
+                                                </option>
+                                            </select>
+                                        </label>
+                                    </div>
+                                    <div *ngIf="workgroupsub" class="form-group">
+                                        <label for="workgroupsub" class="col-md-4 control-label no-padding-right">
+                                            งาน / แผนกย่อย:
+                                        </label>
+                                        <label class="col-md-7 block clearfix">
+                                            <select [(ngModel)]="profile.workgroup_sub" name="workgroupsub"
+                                                id="workgroupsub" class="form-control select2" style="width: 100%;"
+                                                [disabled]="status==2">
+                                                <option value="" disabled="disabled">== กรุณาเลือกสถานบริการ ==</option>
+                                                <option *ngFor="let w of workgroupsub" [value]="w.workgroup_sub_code">
+                                                    {{ w.workgroup_sub }}
+                                                </option>
+                                            </select>
+                                        </label>
+                                    </div>
+                                    <div class="form-group" [class.has-error]="dateFromError">
+                                        <label for="dateFrom" class="col-md-4 control-label no-padding-right">
+                                            วัน เดือน ปี ที่เริ่มปฏิบัติงาน:
+                                        </label>
+                                        <div class="col-md-5 block clearfix">
+                                            <my-date-picker name="dateFrom" id="dateFrom" [options]="myDateFromOptions"
+                                                [(ngModel)]="dateFrom" (dateChanged)="onChangDate($event)"
+                                                [placeholder]="'วัน เดือน ปี ที่เริ่มปฏิบัติงาน'" [locale]="'th'"
+                                                required>
+                                            </my-date-picker>
+                                            <span class="help-block col-xs-12 col-sm-reset inline"
+                                                style="font-size: 12px;" *ngIf="dateFromError">
+                                                *กรุณาเลือก วัน เดือน ปี ที่เริ่มปฏิบัติงาน
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="form-group" *ngIf="dateFrom && dateFrom.date">
+                                        <label for="dateOut" class="col-md-4 control-label no-padding-right">
+                                            วัน เดือน ปี ที่ย้ายออก(ถ้ามี):
+                                        </label>
+                                        <div class="col-md-5 block clearfix">
+                                            <my-date-picker name="dateOut" id="dateOut" [options]="myDateOutOptions"
+                                                [(ngModel)]="dateOut" [placeholder]="'วัน เดือน ปี ที่ย้ายออก(ถ้ามี)'"
+                                                [locale]="'th'" required>
+                                            </my-date-picker>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer center">
+                    <fieldset class="col-xs-6 col-sm-6 col-md-6">
+                        <button (click)="onCancel()" type="button" class="pull-right btn btn-sm btn-default">
+                            <i class="ace-icon fa fa-times-circle-o"></i>
+                            <span class="bigger-110">ยกเลิก</span>
+                        </button>
+                    </fieldset>
+                    <fieldset class="col-xs-6 col-sm-6 col-md-6">
+                        <button type="submit" class="pull-left btn btn-sm btn-primary">
+                            <i class="ace-icon fa fa-floppy-o"></i>
+                            <span class="bigger-110">{{ (status==1)?'บันทึก':'บันทึกการแก้ไข' }}</span>
+                        </button>
+                    </fieldset>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

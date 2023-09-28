@@ -1,0 +1,425 @@
+<div *ngIf="loading" class="widget-box-overlay">
+    <i class="ace-icon loading-xx loading-icon fa fa-spinner fa-pulse fa-3x fa-fw white" style="top: 50%;"></i>
+</div>
+<app-breadcrumbs [subTitle]="'รายงานการลงเวลาปฏิบัติงาน'"></app-breadcrumbs>
+<div class="page-content">
+    <div class="page-header center" style="padding-top: 30px;">
+        <h1>
+            <i class="menu-icon fa fa-clock-o"></i>
+            รายงานการลงเวลาปฏิบัติงาน
+        </h1>
+        <p></p>
+        -:- สำนักงานสาธารณสุขจังหวัดชัยภูมิ -:-
+    </div><!-- /.page-header -->
+    <div class="row">
+        <div class="col-xs-12" id="sum-stamp">
+            <div class="table-header">
+                รายงานประจำ{{ myDate | thaidate:'full' }}
+                <span class="pull-right" style="margin-right: 15px;">
+                    <a href="#" (click)="print('sum-stamp');$event.preventDefault();" style="color: #FFF;">
+                        <i class="fa fa-print" aria-hidden="true"></i>
+                    </a>
+                </span>
+            </div>
+            <div class="box-body table-responsive no-padding">
+                <table class="table table-bordered table-hover table-striped headercenter">
+                    <thead>
+                        <tr class="print-hidden">
+                            <th colspan="13">
+                                <div class="col-sm-4 col-md-4 block clearfix">
+                                    <my-date-picker style="width: 300px;" name="toDate" id="toDate"
+                                        [options]="myDateOptions" [(ngModel)]="toDate"
+                                        (dateChanged)="onChangDate($event)" [placeholder]="'วัน เดือน ปี'"
+                                        [locale]="'th'" required>
+                                    </my-date-picker>
+                                </div>
+                            </th>
+                        </tr>
+                        <tr>
+                            <th>#</th>
+                            <th>ชื่อกลุ่มงาน / งาน</th>
+                            <th>จำนวนทั้งหมด</th>
+                            <th class="success">มาปฏิบัติงาน</th>
+                            <th class="warning">มาปฏิบัติงานสาย</th>
+                            <th class="info">ปฏิบัติงานที่บ้าน</th>
+                            <th>ไปราชการ</th>
+                            <th>ลาป่วย/ลากิจ/ลาคลอด</th>
+                            <th>ลาพักผ่อน/ลาไปต่างประเทศ</th>
+                            <th>ลาอุปสมบท</th>
+                            <th class="danger">ไม่มาปฏิบัติงาน</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let t of timestamp; let i=index;">
+                            <td class="center">{{ i+1 }}</td>
+                            <td>{{ t.DEPTNAME }}</td>
+                            <td class="center">
+                                <a href="javascript:void(0);" (click)="getList(t.DEFAULTDEPTID)">
+                                    {{ t.USERALL }}
+                                </a>
+                            </td>
+                            <td class="center success">{{ t.MA }}</td>
+                            <td class="center warning">{{ t.SAI }}</td>
+                            <td class="center info">{{ t.HOME }}</td>
+                            <td class="center">{{ t.GOL }}</td>
+                            <td class="center">{{ t.LA }}</td>
+                            <td class="center">{{ t.RELAX }}</td>
+                            <td class="center">{{ t.ORDAIN }}</td>
+                            <td class="center danger">{{ t.KAD }}</td>
+                        </tr>
+                    </tbody>
+                    <tfoot class="center" style="font-weight: bold;">
+                        <tr>
+                            <td colspan="2">รวม</td>
+                            <td>{{ timestamp | sumColumn:'USERALL' }}</td>
+                            <td class="success">{{ timestamp | sumColumn:'MA' }}</td>
+                            <td class="warning">{{ timestamp | sumColumn:'SAI' }}</td>
+                            <td class="info">{{ timestamp | sumColumn:'HOME' }}</td>
+                            <td>{{ timestamp | sumColumn:'GOL' }}</td>
+                            <td>{{ timestamp | sumColumn:'LA' }}</td>
+                            <td>{{ timestamp | sumColumn:'RELAX' }}</td>
+                            <td>{{ timestamp | sumColumn:'ORDAIN' }}</td>
+                            <td class="danger">{{ timestamp | sumColumn:'KAD' }}</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div><!-- /.col -->
+    </div><!-- /.row -->
+    <div class="row">
+        <div class="col-xs-12" id="report-stamp">
+            <div class="table-header" style="background-color: rgb(3, 145, 114);">
+                รายงานประจำเดือน
+                จากวันที่ {{ beginDate | thaidate:'medium' }}
+                ถึง วันที่ {{ endDate | thaidate:'medium' }}
+                <span class="pull-right" style="margin-right: 15px;">
+                    <a href="#" (click)="print('report-stamp');$event.preventDefault();" style="color: #FFF;">
+                        <i class="fa fa-print" aria-hidden="true"></i>
+                    </a>
+                </span>
+            </div>
+            <div class="box-body table-responsive no-padding">
+                <table class="table table-bordered table-hover table-striped headercenter">
+                    <thead>
+                        <tr class="print-hidden">
+                            <th colspan="18">
+                                <div class="col-sm-4 col-md-4 block clearfix">
+                                    <my-date-range-picker style="width: 300px;" name="mydaterange"
+                                        [options]="myDateRangeOptions" [(ngModel)]="myDateRangeModel"
+                                        (dateRangeChanged)="onChangDateRange($event)" required>
+                                    </my-date-range-picker>
+                                </div>
+                                <div class="col-sm-4 col-md-4">
+                                    <select [(ngModel)]="workgroup" name="workgroup" id="workgroup"
+                                        class="form-control">
+                                        <option value="">ทั้งหมด</option>
+                                        <option *ngFor="let r of report | unique:'DEPTNAME'" [value]="r?.DEPTNAME">
+                                            {{ r.DEPTNAME }}
+                                        </option>
+                                    </select>
+                                </div>
+                            </th>
+                        </tr>
+                        <tr>
+                            <th rowspan="2">#</th>
+                            <th rowspan="2">ชื่อ-สกุล</th>
+                            <th rowspan="2">กลุ่มงาน / งาน</th>
+                            <th rowspan="2">วันทั้งหมด</th>
+                            <th rowspan="2" class="info">วันทำงาน</th>
+                            <th rowspan="2">วันหยุด</th>
+                            <th colspan="4">มาปฏิบัติงาน</th>
+                            <th rowspan="2" class="danger">ไม่มาปฏิบัติงาน</th>
+                            <th colspan="5">ไปราชการ / ลา</th>
+                            <th rowspan="2" class="warning">ลงเวลากลับ</th>
+                            <th rowspan="2" class="danger">ไม่ได้ลงเวลากลับ</th>
+                        </tr>
+                        <tr>
+                            <th>ปกติ</th>
+                            <th>สาย</th>
+                            <th>ปฏิบัติงานที่บ้าน</th>
+                            <th class="success">รวม</th>
+                            <th>ไปราชการ</th>
+                            <th>ลาป่วย/ลากิจ/ลาคลอด</th>
+                            <th>ลาพักผ่อน/ลาไปต่างประเทศ</th>
+                            <th>ลาอุปสมบท</th>
+                            <th class="info">รวม</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let r of report | filter:{ DEPTNAME:workgroup }:true; let i=index;">
+                            <td class="center">{{ i+1 }}</td>
+                            <td>{{ r.Name }}</td>
+                            <td>{{ r.DEPTNAME }}</td>
+                            <td class="center">{{ r.DATEALL }}</td>
+                            <td class="center info">{{ r.DATEWORK }}</td>
+                            <td class="center">{{ r.HOLIDAY }}</td>
+                            <td class="center">
+                                <a *ngIf="r.CHECKIN>0" href="javascript:void(0)"
+                                    (click)="getNotCheckInOut(r.Badgenumber, beginDate, endDate, 'in')">
+                                    {{ r.CHECKIN }}
+                                </a>
+                                <span *ngIf="r.CHECKIN==0">
+                                    {{ r.CHECKIN }}
+                                </span>
+                            </td>
+                            <td class="center">
+                                <a *ngIf="r.CHECKSAI>0" href="javascript:void(0)"
+                                    (click)="getNotCheckInOut(r.Badgenumber, beginDate, endDate, 'sai')">
+                                    {{ r.CHECKSAI }}
+                                </a>
+                                <span *ngIf="r.CHECKSAI==0">
+                                    {{ r.CHECKSAI }}
+                                </span>
+                            </td>
+                            <td class="center">{{ r.SPEDAY9 }}</td>
+                            <td class="center success">{{ r.CHECKIN+r.CHECKSAI+r.SPEDAY9 }}</td>
+                            <td class="center danger">{{ r.ABSENT }}</td>
+                            <td class="center">{{ r.SPEDAY8 }}</td>
+                            <td class="center">{{ r.SPEDAY2+r.SPEDAY3+r.SPEDAY5+r.SPEDAY6 }}</td>
+                            <td class="center">{{ r.SPEDAY1+r.SPEDAY7 }}</td>
+                            <td class="center">{{ r.SPEDAY4 }}</td>
+                            <td class="center info">
+                                {{ r.SPEDAY1+r.SPEDAY2+r.SPEDAY3+r.SPEDAY4+r.SPEDAY5+r.SPEDAY6+r.SPEDAY7+r.SPEDAY8 }}
+                            </td>
+                            <td class="center warning">{{ r.CHECKOUT }}</td>
+                            <td class="center danger">
+                                <a *ngIf="((r.CHECKIN+r.CHECKSAI+r.SPEDAY9)-r.CHECKOUT)>0" href="javascript:void(0)"
+                                    (click)="getNotCheckInOut(r.Badgenumber, beginDate, endDate, 'out')">
+                                    {{ (r.CHECKIN+r.CHECKSAI+r.SPEDAY9)-r.CHECKOUT }}
+                                </a>
+                                <span *ngIf="!(((r.CHECKIN+r.CHECKSAI+r.SPEDAY9)-r.CHECKOUT)>0)">
+                                    {{ (r.CHECKIN+r.CHECKSAI+r.SPEDAY9)-r.CHECKOUT }}
+                                </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div><!-- /.col -->
+    </div><!-- /.row -->
+    <div class="row">
+        <div id="indiv-stamp" class="col-xs-12" *ngIf="listAll">
+            <div class="table-header" style="background-color: rgb(252, 75, 22);">
+                รายชื่อ{{ (checktimename) ? 'ผู้ที่'+checktimename : '' }} ทั้งหมด
+                {{ (listAll | filter:{ CHECKTIMENAME:checktimename }:true).length }}
+                คน ประจำ{{ myDate | thaidate:'full' }}
+                <span class="pull-right" style="margin-right: 15px;">
+                    <a href="#" (click)="print('indiv-stamp');$event.preventDefault();" style="color: #FFF;">
+                        <i class="fa fa-print" aria-hidden="true"></i>
+                    </a>
+                </span>
+            </div>
+            <div class="box-body table-responsive no-padding">
+                <table class="table table-bordered table-hover table-striped headercenter">
+                    <thead>
+                        <tr class="print-hidden">
+                            <th colspan="8">
+                                <div class="col-sm-4 col-md-4">
+                                    <select [(ngModel)]="checktimename" name="checktimename" id="checktimename"
+                                        class="form-control">
+                                        <option value="">ทั้งหมด</option>
+                                        <option *ngFor="let l of listAll | unique:'CHECKTIMENAME'"
+                                            [value]="l?.CHECKTIMENAME">
+                                            {{ l.CHECKTIMENAME }}
+                                        </option>
+                                    </select>
+                                </div>
+                            </th>
+                        </tr>
+                        <tr>
+                            <th>#</th>
+                            <th>ชื่อ - สกุล</th>
+                            <th>กลุ่มงาน / งาน</th>
+                            <th>การลงเวลา</th>
+                            <th>เข้างานเช้า</th>
+                            <th>เข้างานบ่าย</th>
+                            <th>ออกงาน</th>
+                            <th>ประวัติทั้งหมดวันนี้</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let l of listAll | filter:{ CHECKTIMENAME:checktimename }:true; let i=index;">
+                            <td class="center">{{ i+1 }}</td>
+                            <td>{{ l.TITLE }}{{ l.Name }}</td>
+                            <td>{{ l.DEPTNAME }}</td>
+                            <td class="center"
+                                [ngClass]="(!l.LEAVENAME)?(!l.CHECKIN)?(!l.CHECKSAI)?'red':'orange':'green':'blue'">
+                                {{ l.CHECKTIMENAME }}
+                            </td>
+                            <td class="center" [ngClass]="(l.CHECKIN)?'green':'orange'">
+                                {{ (l.CHECKIN || l.CHECKSAI) | date:'HH:mm:ss':'utc' }}
+                            </td>
+                            <td class="center">{{ l.CHECKTIME | date:'HH:mm:ss':'utc' }}</td>
+                            <td class="center">{{ l.CHECKOUT | date:'HH:mm:ss':'utc' }}</td>
+                            <td class="center">
+                                <span *ngIf="l.CHECKTIME_LOG">
+                                    <span *ngFor="let t of l.CHECKTIME_LOG.split(',');">
+                                        {{ t | date:'HH:mm:ss' }} <br />
+                                    </span>
+                                </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div><!-- /.page-content -->
+
+<div class="modal fade" id="modal-notcheckout">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header blue">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h3 class="modal-title center">
+                    <i class="fa fa-list-alt" aria-hidden="true"></i>
+                    รายการวันที่ ที่ไม่ได้ลงเวลากลับ
+                </h3>
+                <h4 class="modal-title center">
+                    จากวันที่ {{ beginDate | thaidate:'medium' }}
+                    ถึง วันที่ {{ endDate | thaidate:'medium' }}
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="box-body table-responsive no-padding">
+                    <table class="table table-bordered table-hover table-striped headercenter">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>ชื่อ - สกุล</th>
+                                <th>วันที่</th>
+                                <th>เข้างานเช้า</th>
+                                <th>ออกงาน</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let item of notcheckout; let i=index;">
+                                <th>{{ i+1 }}</th>
+                                <th>{{ item.TITLE }}{{ item.Name }}</th>
+                                <th>
+                                    {{
+                                    item.CHECKDATE.substr(0, 4)+'-'
+                                    +item.CHECKDATE.substr(4,2)+'-'
+                                    +item.CHECKDATE.substr(-2) | thaidate: 'medium'
+                                    }}
+                                </th>
+                                <td class="center" [ngClass]="(item.CHECKIN)?'green':'orange'">
+                                    {{ (item.CHECKIN || item.CHECKSAI) }}
+                                </td>
+                                <td class="center">{{ item.CHECKOUT }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer center">
+                <button type="button" class="btn btn-sm" data-dismiss="modal" aria-label="Close">
+                    <i class="fa fa-close" aria-hidden="true"></i>
+                    ปิด
+                </button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+<div class="modal fade" id="modal-timestamp">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form enctype="multipart/form-data" class="form-horizontal">
+                <div class="modal-header blue">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h2 *ngIf="list" class="modal-title center">
+                        <i class="fa fa-list-alt" aria-hidden="true"></i>
+                        รายชื่อผู้การลงเวลาปฏิบัติงาน ของ{{ list[0].DEPTNAME }}
+                    </h2>
+                </div>
+                <div class="modal-body">
+                    <div class="box-body table-responsive no-padding">
+                        <table class="table table-bordered table-hover table-striped headercenter">
+                            <thead>
+                                <tr>
+                                    <th colspan="8" class="center">
+                                        ประจำ{{ myDate | thaidate:'full' }}
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <th>#</th>
+                                    <th>ชื่อ - สกุล</th>
+                                    <th>กลุ่มงาน / งาน</th>
+                                    <th>การลงเวลา</th>
+                                    <th>เข้างานเช้า</th>
+                                    <th>เข้างานบ่าย</th>
+                                    <th>ออกงาน</th>
+                                    <th>ประวัติทั้งหมดวันนี้</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let l of list; let i=index;">
+                                    <td class="center">{{ i+1 }}</td>
+                                    <td>{{ l.TITLE }}{{ l.Name }}</td>
+                                    <td>{{ l.DEPTNAME }}</td>
+                                    <td class="center"
+                                        [ngClass]="(!l.LEAVENAME)?(!l.CHECKIN)?(!l.CHECKSAI)?'red':'orange':'green':'blue'">
+                                        {{ l.CHECKTIMENAME }}
+                                    </td>
+                                    <td class="center" [ngClass]="(l.CHECKIN)?'green':'orange'">
+                                        <i *ngIf="l.snIn=='S' && (l.CHECKIN || l.CHECKSAI)"
+                                            class="fa-solid fa-fingerprint"></i>
+                                        <i *ngIf="l.snIn=='L' && (l.CHECKIN || l.CHECKSAI)"
+                                            class="fa-brands fa-line"></i>
+                                        <i *ngIf="l.snIn=='U' && (l.CHECKIN || l.CHECKSAI)" class="fa fa-user-circle-o"
+                                            aria-hidden="true"></i>
+                                        {{ (l.CHECKIN || l.CHECKSAI) | date:'HH:mm:ss':'utc' }}
+                                        <span *ngIf="l.CHECKIN || l.CHECKSAI"
+                                            [ngClass]="(l.WorkCodeIn=='3')?'orange':'green'">
+                                            <i style="font-size: 8px;" class="fa fa-circle" aria-hidden="true"></i>
+                                        </span>
+                                        <!-- <P *ngIf="l.CHECKIN || l.CHECKSAI"
+                                            [ngClass]="(l.WorkCodeIn=='3')?'orange':'green'">
+                                            {{ (l.WorkCodeIn=='3')?'สสจ.เก่า':'สสจ.ใหม่' }}
+                                        </P> -->
+                                    </td>
+                                    <td class="center">{{ l.CHECKTIME | date:'HH:mm:ss':'utc' }}</td>
+                                    <td class="center">
+                                        <i *ngIf="l.snOut=='S' && l.CHECKOUT" class="fa-solid fa-fingerprint"></i>
+                                        <i *ngIf="l.snOut=='L' && l.CHECKOUT" class="fa-brands fa-line"></i>
+                                        <i *ngIf="l.snOut=='U' && l.CHECKOUT" class="fa fa-user-circle-o"
+                                            aria-hidden="true"></i>
+                                        {{ l.CHECKOUT | date:'HH:mm:ss':'utc' }}
+                                        <span *ngIf="l.CHECKOUT" [ngClass]="(l.WorkCodeOut=='3')?'orange':'green'">
+                                            <i style="font-size: 8px;" class="fa fa-circle" aria-hidden="true"></i>
+                                        </span>
+                                        <!-- <P *ngIf="l.CHECKOUT" [ngClass]="(l.WorkCodeOut=='3')?'orange':'green'">
+                                            {{ (l.WorkCodeOut=='3')?'สสจ.เก่า':'สสจ.ใหม่' }}
+                                        </P> -->
+                                    </td>
+                                    <td class="center">
+                                        <span *ngIf="l.CHECKTIME_LOG && !l.REPORTSYMBL">
+                                            <span *ngFor="let t of l.CHECKTIME_LOG.split(',');">
+                                                {{ t | date:'HH:mm:ss' }} <br />
+                                            </span>
+                                        </span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer center">
+                    <button (click)="print('modal-timestamp')" type="button" class="btn btn-sm btn-primary">
+                        <i class="fa fa-print" aria-hidden="true"></i>
+                        Print
+                    </button>
+                </div>
+            </form>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>

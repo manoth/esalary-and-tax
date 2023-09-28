@@ -1,0 +1,74 @@
+<div id="fullscreen" class="main-container html5-fullscreen-api" [class.title-padding-top]="true">
+    <span id="btnFullscreen" (click)="fullScreen()" class="fs-button material-icons" style="font-size: 50px;">
+        {{ (!fullscreenButton)?'fullscreen':'fullscreen_exit' }}
+    </span>
+    <div class="main-content">
+        <div class="row">
+            <div class="space-6"></div>
+            <div class="space-6"></div>
+            <div class="space-6"></div>
+            <div class="col-sm-10 col-sm-offset-1">
+                <div [class.login-container]="false">
+                    <div class="center">
+                        <h1 style="font-size: 4em;">
+                            <i class="ace-icon fa fa-building"></i>
+                            <span class="red"> ห้องประชุมวันนี้ ทั้งหมด {{ roomCount }} รายการ </span>
+                            <i class="ace-icon fa fa-building"></i>
+                        </h1>
+                        <h1 class="blue" id="id-company-text" style="font-size: 3em;">
+                            ประจำ{{ meeting?.date | thaidate:'full' }}
+                        </h1>
+                    </div>
+                    <div class="space-6"></div>
+                    <div class="space-6"></div>
+                    <div class="position-relative" style="background-color: #f3f3f3;">
+                        <div *ngIf="!meeting?.ok" style="height: 250px;">
+                            <div class="mall-show-slide fade" style="display: none;">
+                                <h1 class="center animate__animated" style="font-size: 6em; padding-top:80px;">
+                                    ไม่พบการใช้ห้องประชุมในวันนี้...
+                                </h1>
+                            </div>
+                        </div>
+                        <div *ngIf="meeting?.ok">
+                            <div *ngFor="let m of meeting?.data; let i=index;" class="mall-show-slide fade"
+                                style="display: none;">
+                                <table class="animate__animated table table-bordered table-striped"
+                                    style="font-size: 3em;">
+                                    <thead>
+                                        <tr [class]="m.color">
+                                            <th class="center" colspan="2">
+                                                {{ i+1 }}. {{ m.room }}
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <th style="width: 250px;"> หัวข้อ: </th>
+                                            <td> {{ m.title }} </td>
+                                        </tr>
+                                        <tr>
+                                            <th> โดย: </th>
+                                            <td> {{ m.workgroup }} </td>
+                                        </tr>
+                                        <tr>
+                                            <th> ช่วงเวลา: </th>
+                                            <td> {{ m.start | date:'HH:mm':'utc' }} -
+                                                {{ m.end | date:'HH:mm':'utc' }}
+                                                น. </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <h2 class="center blue" id="id-company-text" style="font-size: 3em;">
+                        @สำนักงานสาธารณสุขจังหวัดชัยภูมิ
+                    </h2>
+                    <h2 class="center blue" id="id-company-text" style="font-size: 3em;">
+                        "มีน้ำใจ รับผิดชอบ เสียสละ"
+                    </h2>
+                </div><!-- /.col -->
+            </div><!-- /.row -->
+        </div><!-- /.main-content -->
+    </div><!-- /.main-container -->
+</div>

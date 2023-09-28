@@ -1,0 +1,275 @@
+<div *ngIf="loading" class="widget-box-overlay">
+    <i class="ace-icon loading-xx loading-icon fa fa-spinner fa-pulse fa-3x fa-fw white" style="top: 50%;"></i>
+</div>
+<app-breadcrumbs [subTitle]="'จัดการตำแหน่ง'"></app-breadcrumbs>
+<div class="page-content">
+    <div class="widget-main">
+        <h4 class="header green lighter bigger center">
+            <i class="ace-icon fa fa-address-book-o"></i>
+            ตำแหน่งงานของคุณ
+        </h4>
+        <div class="row">
+            <div class="col-sm-12 col-md-12">
+                <div class="col-sm-10 col-sm-offset-1">
+                    <div class="">
+                        <div class="row">
+                            <div class="col-xs-6 col-sm-6 col-md-6">
+                                <!-- <h4>ประวัติการรับตำแหน่ง:</h4> -->
+                            </div>
+                            <div class="col-xs-6 col-sm-6 col-md-6">
+                                <div class="row pull-right">
+                                    <button (click)="onAdd()" type="button" class="btn btn-xs btn-success"
+                                        data-toggle="control-sidebar" data-toggle="modal"
+                                        data-target="#modal-add-position" data-backdrop="static">
+                                        <i class="ace-icon fa fa-pencil"></i>
+                                        <span class="bigger-110">เปลี่ยนตำแหน่งงาน</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="table-header" style="background-color: rgb(3, 145, 114);">
+                                <!-- <i class="menu-icon fa fa-bar-chart"></i> -->
+                                <span>
+                                    ตำแหน่งงานปัจจุบัน
+                                </span>
+                            </div>
+                            <div class="box-body table-responsive no-padding">
+                                <table class="table table-bordered table-hover table-striped headercenter">
+                                    <thead>
+                                        <tr>
+                                            <th>ประเภทตำแหน่งงาน</th>
+                                            <th>ตำแหน่งงาน</th>
+                                            <th>ระดับ</th>
+                                            <th>ตำแหน่งบริหาร</th>
+                                            <th>วัน เดือน ปี ที่รับตำแหน่ง</th>
+                                            <th>สถานะ</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let p of positionAll | filter: {'id': decode?.position_id}: true">
+                                            <td>
+                                                {{ p.type_name || '-' }}
+                                            </td>
+                                            <td>
+                                                {{ p.position_name || '-' }}
+                                            </td>
+                                            <td>
+                                                {{ p.level_name || '-' }}
+                                            </td>
+                                            <td>
+                                                {{ p.manager_name || '-' }}
+                                            </td>
+                                            <td class="center">
+                                                {{ (p.date_from)?(p.date_from | thaidate:'medium'):'-' }}
+                                            </td>
+                                            <td class="center">
+                                                {{ (decode?.position_id==p.id)?'ตำแหน่งปัจจุบัน':'ประวัติตำแหน่ง' }}
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="table-header">
+                                <!-- <i class="menu-icon fa fa-bar-chart"></i> -->
+                                <span>
+                                    ประวัติการรับตำแหน่งที่ผ่านมา
+                                </span>
+                            </div>
+                            <div class="box-body table-responsive no-padding">
+                                <table class="table table-bordered table-hover table-striped headercenter">
+                                    <thead>
+                                        <tr>
+                                            <th>ประเภทตำแหน่งงาน</th>
+                                            <th>ตำแหน่งงาน</th>
+                                            <th>ระดับ</th>
+                                            <th>ตำแหน่งบริหาร</th>
+                                            <th>วัน เดือน ปี ที่รับตำแหน่ง</th>
+                                            <th>สถานะ</th>
+                                            <th>แก้ไข</th>
+                                            <th>ลบ</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let p of positionAll">
+                                            <td>
+                                                {{ p.type_name || '-' }}
+                                            </td>
+                                            <td>
+                                                {{ p.position_name || '-' }}
+                                            </td>
+                                            <td>
+                                                {{ p.level_name || '-' }}
+                                            </td>
+                                            <td>
+                                                {{ p.manager_name || '-' }}
+                                            </td>
+                                            <td class="center">
+                                                {{ (p.date_from)?(p.date_from | thaidate:'medium'):'-' }}
+                                            </td>
+                                            <td class="center" [class]="(decode?.position_id==p.id)?'green':''">
+                                                {{ (decode?.position_id==p.id)?'ตำแหน่งปัจจุบัน':'ประวัติตำแหน่ง' }}
+                                            </td>
+                                            <td class="center">
+                                                <div class="btn-group">
+                                                    <button (click)="onEdit(p)" type="button"
+                                                        class="btn btn-xs btn-primary" data-toggle="control-sidebar"
+                                                        data-toggle="modal" data-target="#modal-add-position"
+                                                        data-backdrop="static">
+                                                        <i class="ace-icon fa fa-pencil bigger-120"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                            <td class="center">
+                                                <div class="btn-group" *ngIf="decode?.position_id!=p.id">
+                                                    <button (click)="onDel(p.id)" type="button"
+                                                        class="btn btn-xs btn-danger">
+                                                        <i class="ace-icon fa fa-trash-o bigger-120"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modal-add-position">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form enctype="multipart/form-data" class="form-horizontal" (ngSubmit)="onSubmit()">
+                <div *ngIf="loadposition" class="widget-box-overlay">
+                    <i class="ace-icon loading-xx loading-icon fa fa-spinner fa-pulse fa-3x fa-fw white"
+                        style="top: 50%;"></i>
+                </div>
+                <div class="modal-header green">
+                    <button (click)="onCancel()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h3 class="modal-title center" [ngClass]="(status==1)?'green':'blue'">
+                        <i class="fa" aria-hidden="true" [ngClass]="(status==1)?'fa-plus':'fa-pencil-square-o'"></i>
+                        {{
+                        (editProfile)?(status==1)?'เพิ่มหรือปรับเปลี่ยนตำแหน่งงาน':'แก้ไขวันที่รับตำแหน่งงาน':'ตำแหน่งงานของคุณ'
+                        }}
+                    </h3>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12 col-md-12">
+                            <div class="col-sm-10 col-sm-offset-1">
+                                <div class="position-relative">
+                                    <div class="space-6"></div>
+                                    <div class="form-group" [class.has-error]="typeError">
+                                        <label for="type" class="col-md-4 control-label no-padding-right">
+                                            ประเภทตำแหน่ง:
+                                        </label>
+                                        <label class="col-md-7 block clearfix">
+                                            <select (change)="onType(profile.type)" [(ngModel)]="profile.type"
+                                                name="type" id="type" class="form-control select2" style="width: 100%;"
+                                                [disabled]="status==2">
+                                                <option value="" disabled="disabled">== กรุณาเลือกประเภทตำแหน่ง ==
+                                                </option>
+                                                <option *ngFor="let t of type" [value]="t.type_code">
+                                                    {{ t.type_profile }}
+                                                </option>
+                                            </select>
+                                            <span class="help-block col-xs-12 col-sm-reset inline"
+                                                style="font-size: 12px;" *ngIf="typeError">
+                                                *กรุณาเลือก ประเภทตำแหน่ง
+                                            </span>
+                                        </label>
+                                    </div>
+                                    <div class="form-group" [class.has-error]="positionError">
+                                        <label for="position" class="col-md-4 control-label no-padding-right">
+                                            ตำแหน่ง:
+                                        </label>
+                                        <label class="col-md-7 block clearfix">
+                                            <select [(ngModel)]="profile.position" name="position" id="position"
+                                                class="form-control select2" style="width: 100%;"
+                                                [disabled]="status==2">
+                                                <option value="" disabled="disabled">== กรุณาเลือกตำแหน่ง ==</option>
+                                                <option *ngFor="let p of position" [value]="p.id_position">
+                                                    {{ p.position }}
+                                                </option>
+                                            </select>
+                                            <span class="help-block col-xs-12 col-sm-reset inline"
+                                                style="font-size: 12px;" *ngIf="positionError">
+                                                *กรุณาเลือก ตำแหน่งงาน
+                                            </span>
+                                        </label>
+                                    </div>
+                                    <div *ngIf="profile.type=='01'" class="form-group">
+                                        <label for="level" class="col-md-4 control-label no-padding-right">
+                                            ระดับ(ถ้ามี):
+                                        </label>
+                                        <label class="col-md-7 block clearfix">
+                                            <select [(ngModel)]="profile.level" name="level" id="level"
+                                                class="form-control select2" style="width: 100%;"
+                                                [disabled]="status==2">
+                                                <option *ngFor="let l of level" [value]="l.level_code">
+                                                    {{ l.level_name }}
+                                                </option>
+                                            </select>
+                                        </label>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="manager" class="col-md-4 control-label no-padding-right">
+                                            ตำแหน่งบริหาร(ถ้ามี):
+                                        </label>
+                                        <label class="col-md-7 block clearfix">
+                                            <select [(ngModel)]="profile.manager" name="manager" id="manager"
+                                                class="form-control select2" style="width: 100%;"
+                                                [disabled]="status==2">
+                                                <option *ngFor="let m of manager" [value]="m.manager_code">
+                                                    {{ m.type_profile_full }}
+                                                </option>
+                                            </select>
+                                        </label>
+                                    </div>
+                                    <div class="form-group" [class.has-error]="dateFromError">
+                                        <label for="dateFrom" class="col-md-4 control-label no-padding-right">
+                                            วัน เดือน ปี ที่เข้ารับตำแหน่ง:
+                                        </label>
+                                        <div class="col-md-5 block clearfix">
+                                            <my-date-picker name="dateFrom" id="dateFrom" [options]="myDateFromOptions"
+                                                [(ngModel)]="dateFrom" (dateChanged)="onChangDate($event)"
+                                                [placeholder]="'วัน เดือน ปี ที่เข้ารับตำแหน่ง'" [locale]="'th'"
+                                                required>
+                                            </my-date-picker>
+                                            <span class="help-block col-xs-12 col-sm-reset inline"
+                                                style="font-size: 12px;" *ngIf="dateFromError">
+                                                *กรุณาเลือก วัน เดือน ปี ที่เข้ารับตำแหน่ง
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer center">
+                    <fieldset class="col-xs-6 col-sm-6 col-md-6">
+                        <button (click)="onCancel()" type="button" class="pull-right btn btn-sm btn-default">
+                            <i class="ace-icon fa fa-times-circle-o"></i>
+                            <span class="bigger-110">ยกเลิก</span>
+                        </button>
+                    </fieldset>
+                    <fieldset class="col-xs-6 col-sm-6 col-md-6">
+                        <button type="submit" class="pull-left btn btn-sm btn-primary">
+                            <i class="ace-icon fa fa-floppy-o"></i>
+                            <span class="bigger-110">{{ (status==1)?'บันทึก':'บันทึกการแก้ไข' }}</span>
+                        </button>
+                    </fieldset>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

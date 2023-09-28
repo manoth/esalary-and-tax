@@ -1,0 +1,591 @@
+<div *ngIf="loading" class="widget-box-overlay">
+    <i class="ace-icon loading-xx loading-icon fa fa-spinner fa-pulse fa-3x fa-fw white" style="top: 50%;"></i>
+</div>
+<app-breadcrumbs [subTitle]="'บันทึกขออนุมัติไปราชการ'"></app-breadcrumbs>
+<div *ngIf="decoded" class="page-content">
+    <div class="page-header center" style="padding-top: 30px;">
+        <h1>
+            <i class="menu-icon fa fa-send"></i>
+            ระบบบันทึกขออนุมัติไปราชการ
+        </h1>
+        <p></p>
+        -:- สำนักงานสาธารณสุขจังหวัดชัยภูมิ -:-
+        <p></p>
+        <div *ngIf="!adminPage" class="pull-left" (click)="staff()">
+            [ <a href="javascript:void(0);">ไปยังหน้าสำหรับเจ้าหน้าที่</a> ]
+        </div>
+        <div *ngIf="adminPage" class="pull-left" (click)="logout()">
+            [ <a href="javascript:void(0);">ออกจากหน้าสำหรับเจ้าหน้าที่</a> ]
+        </div>
+    </div><!-- /.page-header -->
+    <div class="alert alert-block alert-danger">
+        <h4>
+            <i class="ace-icon fa fa-exclamation-circle red"></i>
+            ระบบกำลังอยู่ในช่วงเปิดให้ทดลองใช้งาน
+        </h4>
+        <p>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            - คุณสามารถเข้ามาบันทึกข้อมูลต่าง ๆ ลงในระบบได้ ข้อมูลที่มีการบันทึกเข้ามาจะไม่มีผลใด๋ ๆ ต่อระบบงาน
+            และเมื่อเปิดให้ใช้งานจริง ข้อมูลที่มีการบันทึกเข้ามาในช่วงทดลองใช้งาน จะถูกลบออกเพื่อเริ่มต้นใหม่ทั้งหมด
+        </p>
+    </div>
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="tabbable">
+                <ul *ngIf="!adminPage" id="inbox-tabs"
+                    class="inbox-tabs nav nav-tabs padding-16 tab-size-bigger tab-space-1">
+                    <li class="li-new-mail pull-right">
+                        <a (click)="onAdd()" class="btn-new-mail">
+                            <span class="btn btn-info no-border">
+                                <i class="ace-icon fa fa-pencil bigger-130"></i>
+                                <span class="bigger-110">เขียน</span>
+                            </span>
+                        </a>
+                    </li><!-- /.li-new-mail -->
+                    <li routerLinkActive="active">
+                        <a [routerLink]="['/apps/go-to-government/all']">
+                            <i class="blue ace-icon fa fa-file-text bigger-130"></i>
+                            <span class="bigger-110">ทั้งหมดที่มีฉัน</span>
+                        </a>
+                    </li>
+                    <li routerLinkActive="active">
+                        <a [routerLink]="['/apps/go-to-government/my']">
+                            <i class="orange ace-icon fa fa-bookmark bigger-130"></i>
+                            <span class="bigger-110">บันทึกของฉัน</span>
+                        </a>
+                    </li>
+                </ul>
+                <ul *ngIf="adminPage" id="inbox-tabs"
+                    class="inbox-tabs nav nav-tabs padding-16 tab-size-bigger tab-space-1">
+                    <li routerLinkActive="active">
+                        <a [routerLink]="['/apps/go-to-government/pending']">
+                            <i class="orange ace-icon fa fa-exclamation-triangle bigger-130"></i>
+                            <span class="bigger-110">รอการอนุมัติ</span>
+                        </a>
+                    </li>
+                    <li routerLinkActive="active">
+                        <a [routerLink]="['/apps/go-to-government/approve']">
+                            <i class="green ace-icon fa fa-check-square-o bigger-130"></i>
+                            <span class="bigger-110">อนุมัติแล้ว</span>
+                        </a>
+                    </li>
+                </ul>
+                <div class="tab-content no-border no-padding">
+                    <div id="inbox" class="tab-pane in active">
+                        <div class="message-container">
+                            <div *ngIf="!adminPage" id="id-message-new-navbar" class="message-navbar clearfix">
+                                {{
+                                (page=='all')?'บันทึกขออนุมัติไปราชการทั้งหมดที่มีฉัน':'บันทึกขออนุมัติไปราชการที่ฉันเขียน'
+                                }}
+                            </div>
+                            <div *ngIf="adminPage" id="id-message-new-navbar" class="message-navbar clearfix">
+                                {{
+                                (page=='pending')?'บันทึกขออนุมัติไปราชการที่รอการอนุมัติ':'บันทึกขออนุมัติไปราชการที่อนุมัติแล้ว'
+                                }}
+                            </div>
+                            <div class="message-list-container">
+                                <div class="box-body table-responsive no-padding">
+                                    <table class="table table-bordered table-hover table-striped headercenter">
+                                        <thead>
+                                            <tr>
+                                                <th [attr.colspan]="page!='all'?12:11">
+                                                    <div class="col-sm-3 col-md-3">
+                                                        <div class="col-sm-5 col-md-5" style="margin-top: 7px;">
+                                                            ปีงบประมาณ:
+                                                        </div>
+                                                        <div class="col-sm-7 col-md-7">
+                                                            <select [(ngModel)]="bYear" name="bYear" id="bYear"
+                                                                class="form-control">
+                                                                <option *ngFor="let y of bYearArr" [value]="y.b_year">
+                                                                    {{ +y.b_year+543 }}
+                                                                </option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                </th>
+                                            </tr>
+                                            <tr>
+                                                <th>#</th>
+                                                <th>สถานะ</th>
+                                                <th>วันที่ทำรายการ</th>
+                                                <th>ชื่อ-สกุลผู้บันทึก</th>
+                                                <th>ไปราชการเพื่อ</th>
+                                                <th>จากวันที่</th>
+                                                <th>ถึงวันที่</th>
+                                                <th>จำนวนวัน</th>
+                                                <th>จำนวนคน</th>
+                                                <th>รายละเอียด</th>
+                                                <th>เอกสารยืนยัน</th>
+                                                <th *ngIf="page!='all'">
+                                                    {{ (page=='pending')?'การอนุมัติ':'ยกเลิกบันทึก' }}
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr *ngFor="let g of listGov; let i=index;">
+                                                <td class="text-center"> {{ i+1 }}</td>
+                                                <td class="text-center">
+                                                    <span *ngIf="g.status==0"
+                                                        class="text-danger">รออัพโหลดเอกสารยืนยัน</span>
+                                                    <span *ngIf="g.status==1" class="text-warning">รอการอนุมัติ</span>
+                                                    <span *ngIf="g.status==2" class="text-danger">{{ g.comment }}</span>
+                                                    <span *ngIf="g.status==3" class="text-success">อนุมัติแล้ว</span>
+                                                </td>
+                                                <td>
+                                                    {{ g.book_date | thaidate:'short' }}
+                                                </td>
+                                                <td>{{ g.full_name }}</td>
+                                                <td>{{ g.gov_for }}</td>
+                                                <td>
+                                                    {{ g.start_date | thaidate: 'short' }}
+                                                </td>
+                                                <td>
+                                                    {{ g.end_date | thaidate: 'short' }}
+                                                </td>
+                                                <td class="text-center">{{ g.qty_date }}</td>
+                                                <!-- <td class="text-center">{{ g.all_person }}</td> -->
+                                                <td class="text-center">
+                                                    <a (click)="showPersonal(g)" href="javascript:void(0);">
+                                                        {{ g.qty_person }}
+                                                    </a>
+                                                </td>
+                                                <td class="text-center">
+                                                    <div class="btn-group">
+                                                        <button type="button" class="btn btn-xs btn-info">
+                                                            <i class="ace-icon fa fa-file-text bigger-120"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                                <td class="text-center">
+                                                    <div class="btn-group">
+                                                        <button *ngIf="g.status==0 || g.status==2"
+                                                            (click)="onClickUpload(g)" type="button"
+                                                            class="btn btn-xs btn-success">
+                                                            <i class="ace-icon fa fa-cloud-upload bigger-120"></i>
+                                                        </button>
+                                                        <button *ngIf="g.status==1 || g.status==3" type="button"
+                                                            (click)="showImage(g.id)" class="btn btn-xs btn-success"
+                                                            href="javascript:void(0)">
+                                                            <i *ngIf="g.image_type=='image'"
+                                                                class="ace-icon fa fa-file-image-o bigger-120"></i>
+                                                            <i *ngIf="g.image_type=='pdf'"
+                                                                class="ace-icon fa fa-file-pdf-o bigger-120"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                                <td *ngIf="page!='all' && page!='pending'" class="text-center">
+                                                    <div class="btn-group">
+                                                        <button
+                                                            *ngIf="(g.status==0 || g.status==2 || (adminPage && g.status==3))"
+                                                            (click)="onDel(g)" class="btn btn-xs btn-danger">
+                                                            <i class="ace-icon fa fa-trash-o bigger-120"></i>
+                                                        </button>
+                                                        <p *ngIf="!adminPage && (g.status==1 || g.status==3)">
+                                                            ติดต่อการเจ้าหน้าที่
+                                                        </p>
+                                                    </div>
+                                                </td>
+                                                <td *ngIf="page=='pending'" class="center"
+                                                    style="vertical-align: middle; width: 80px;">
+                                                    <div class="btn-group">
+                                                        <button (click)="staffApprovd(g)" type="button"
+                                                            class="btn btn-xs btn-success">
+                                                            <i class="ace-icon fa fa-check bigger-120"></i>
+                                                        </button>
+                                                        <button (click)="staffComment(g.id)" type="button"
+                                                            class="btn btn-xs btn-danger">
+                                                            <i class="ace-icon fa fa-remove bigger-120"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                        <tfoot *ngIf="!(listGov.length>0)">
+                                            <tr>
+                                                <td [attr.colspan]="page!='all'?12:11" class="text-center">
+                                                    <span
+                                                        *ngIf="!adminPage">ไม่พบประวัติการส่งบันทึกขออนุมัติไปราชการ...</span>
+                                                    <span *ngIf="adminPage && page=='pending'">
+                                                        ไม่พบบันทึกขออนุมัติไปราชการที่รอการอนุมัติ...
+                                                    </span>
+                                                    <span *ngIf="adminPage && page=='approve'">
+                                                        ไม่พบบันทึกขออนุมัติไปราชการที่อนุมัติแล้ว...
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div><!-- /.row -->
+    <div class="space-12"></div>
+</div>
+
+<div class="modal fade" id="modal-send-goverment">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form (submit)="onSubmit()" class="form-horizontal">
+                <div class="modal-header bg-primary">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h2 class="modal-title center">
+                        <i class="ace-icon fa fa fa-pencil-square-o"></i>
+                        สร้างบันทึกขออนุมัติไปราชการ
+                    </h2>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12 col-md-12">
+                            <div class="position-relative">
+                                <div class="space-6"></div>
+                                <div class="form-group">
+                                    <label for="agency" class="col-xs-12 col-sm-3 control-label no-padding-right">
+                                        ส่วนราชการ:
+                                    </label>
+                                    <label class="col-xs-12 col-sm-7 block clearfix" style="padding-top:7px;">
+                                        {{ gov?.agency }}
+                                    </label>
+                                </div>
+                                <div class="form-group">
+                                    <label for="book_no" class="col-xs-12 col-sm-3 control-label no-padding-right">
+                                        ที่:
+                                    </label>
+                                    <label class="col-xs-12 col-sm-7 block clearfix">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">
+                                                {{ gov?.book_no }}
+                                            </span>
+                                            <input [(ngModel)]="bookNo" style="width: 120px;" type="text" name="bookNo"
+                                                class="form-control" placeholder="...">
+                                        </div>
+                                    </label>
+                                </div>
+                                <div class="form-group">
+                                    <label for="book_date" class="col-xs-12 col-sm-3 control-label no-padding-right">
+                                        ลงวันที่:
+                                    </label>
+                                    <label class="col-xs-12 col-sm-7 block clearfix" style="padding-top:7px;">
+                                        {{ toDay | thaidate:'medium' }}
+                                    </label>
+                                </div>
+                                <div class="form-group">
+                                    <label for="topic" class="col-xs-12 col-sm-3 control-label no-padding-right">
+                                        เรื่อง:
+                                    </label>
+                                    <label class="col-xs-12 col-sm-7 block clearfix" style="padding-top:7px;">
+                                        {{ gov?.topic }}
+                                    </label>
+                                </div>
+                                <div class="form-group">
+                                    <label for="honor" class="col-xs-12 col-sm-3 control-label no-padding-right">
+                                        เรียน:
+                                    </label>
+                                    <label class="col-xs-12 col-sm-7 block clearfix" style="padding-top:7px;">
+                                        {{ gov?.honor }}
+                                    </label>
+                                </div>
+                                <div class="form-group">
+                                    <label for="full_name" class="col-xs-12 col-sm-3 control-label no-padding-right">
+                                        ข้าพเจ้า:
+                                    </label>
+                                    <label class="col-xs-12 col-sm-7 block clearfix" style="padding-top:7px;">
+                                        {{ gov?.full_name }}
+                                    </label>
+                                </div>
+                                <div class="form-group">
+                                    <label for="user-along" class="col-xs-12 col-sm-3 control-label no-padding-right">
+                                        พร้อมด้วย:
+                                    </label>
+                                    <label class="col-xs-12 col-sm-8 block clearfix">
+                                        <select style="width: 100%;" id="user-along" class="form-control"
+                                            multiple="multiple" name="user-along"
+                                            data-placeholder=" เลือกรายชื่อผู้ที่ไปราชการด้วย ...">
+                                            <option *ngFor="let u of users" [value]="u.cid">
+                                                {{ u.prename }}{{ u.fname }} {{ u.lname }}
+                                            </option>
+                                        </select>
+                                    </label>
+                                </div>
+                                <div class="form-group">
+                                    <label for="type" class="col-xs-12 col-sm-3 control-label no-padding-right">
+                                        ไปราชการประเภท:
+                                    </label>
+                                    <label class="col-xs-12 col-sm-8 block clearfix">
+                                        <select [(ngModel)]="gov.type_id" name="type" class="form-control">
+                                            <option *ngFor="let t of govType" [value]="t.type_id">
+                                                {{ t.type_name }}
+                                            </option>
+                                        </select>
+                                    </label>
+                                </div>
+                                <div class="form-group">
+                                    <label [class.red]="!gov.gov_for" for="gov_for"
+                                        class="col-xs-12 col-sm-3 control-label no-padding-right">
+                                        ไปราชการเพื่อ:
+                                    </label>
+                                    <label class="col-xs-12 col-sm-8 block clearfix" [class.has-error]="!gov.gov_for">
+                                        <textarea [(ngModel)]="gov.gov_for" placeholder="ไปราชการเพื่อ ..."
+                                            class="form-control" name="gov_for" id="gov_for"></textarea>
+                                    </label>
+                                </div>
+                                <div class="form-group">
+                                    <label for="startDate" class="col-xs-12 col-sm-3 control-label no-padding-right">
+                                        จากวันที่:
+                                    </label>
+                                    <label class="col-xs-12 col-sm-4 block clearfix">
+                                        <my-date-picker style="width: 300px;" name="startDate" id="startDate"
+                                            [options]="myDateOptions1" [(ngModel)]="startDate"
+                                            (dateChanged)="onChangStartDate($event)" [placeholder]="'วัน เดือน ปี'"
+                                            [locale]="'th'" required>
+                                        </my-date-picker>
+                                    </label>
+                                </div>
+                                <div class="form-group">
+                                    <label for="endDate" class="col-xs-12 col-sm-3 control-label no-padding-right">
+                                        ถึงวันที่:
+                                    </label>
+                                    <label class="col-xs-12 col-sm-4 block clearfix">
+                                        <my-date-picker style="width: 300px;" name="endDate" id="endDate"
+                                            [options]="myDateOptions2" [(ngModel)]="endDate"
+                                            (dateChanged)="onChangEndDate($event)" [placeholder]="'วัน เดือน ปี'"
+                                            [locale]="'th'" required>
+                                        </my-date-picker>
+                                    </label>
+                                </div>
+                                <div class="form-group">
+                                    <label [class.red]="!gov.location" for="location"
+                                        class="col-xs-12 col-sm-3 control-label no-padding-right">
+                                        สถานที่ไป:
+                                    </label>
+                                    <label class="col-xs-12 col-sm-8 block clearfix" [class.has-error]="!gov.location">
+                                        <textarea [(ngModel)]="gov.location" placeholder="ณ ห้องประชุม ..."
+                                            class=" form-control" name="location" id="location"></textarea>
+                                    </label>
+                                </div>
+                                <div class="form-group">
+                                    <label for="vehicle" class="col-xs-12 col-sm-3 control-label no-padding-right">
+                                        เดินทางด้วย:
+                                    </label>
+                                    <label class="col-xs-12 col-sm-8 block clearfix">
+                                        <select (change)="gov.car_detail=''" [(ngModel)]="gov.vehicle_id" name="vehicle"
+                                            class="form-control">
+                                            <option *ngFor="let v of govVehicle" [value]="v.vehicle_id">
+                                                {{ v.vehicle_name }}
+                                            </option>
+                                        </select>
+                                    </label>
+                                </div>
+                                <div *ngIf="gov.vehicle_id=='99'" class="form-group">
+                                    <label [class.red]="!gov.car_detail" for="carDetail"
+                                        class="col-xs-12 col-sm-3 control-label no-padding-right">
+                                        รายละเอียดของรถ:
+                                    </label>
+                                    <label class="col-xs-12 col-sm-8 block clearfix"
+                                        [class.has-error]="!gov.car_detail">
+                                        <textarea [(ngModel)]="gov.car_detail" placeholder="รถยนต์หมายเลขทะเบียน ..."
+                                            class=" form-control" name="carDetail" id="carDetail"></textarea>
+                                    </label>
+                                </div>
+                                <div class="form-group">
+                                    <label for="expenses" class="col-xs-12 col-sm-3 control-label no-padding-right">
+                                        เบิกจากต้นสังกัด:
+                                    </label>
+                                    <label class="col-xs-12 col-sm-8 block clearfix" style="padding-top:7px;">
+                                        <label *ngFor="let e of govExpenses">
+                                            <input [value]="e.expenses_id" (change)="onCheckExpenses($event)"
+                                                type="checkbox" class="ng-untouched ng-pristine ng-valid">
+                                            {{ e.expenses_name }}&nbsp;&nbsp;&nbsp;&nbsp;
+                                        </label>
+                                    </label>
+                                </div>
+                                <div class="form-group">
+                                    <label for="topic" class="col-xs-12 col-sm-3 control-label no-padding-right">
+                                        รายละเอียดอื่น ๆ:
+                                    </label>
+                                    <label class="col-xs-12 col-sm-8 block clearfix">
+                                        <textarea placeholder="รายละเอียดอื่น ๆ ..." class="form-control" name="topic"
+                                            id="topic"></textarea>
+                                        <!-- <span class="help-block col-xs-12 col-sm-reset inline" style="font-size: 10px;"
+                                            *ngIf="errEleave.reason">
+                                            *จำเป็นต้องมีข้อมูล !
+                                        </span> -->
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer center">
+                    <fieldset class="col-xs-6 col-sm-6 col-md-6">
+                        <button type="button" class="pull-right btn btn-sm btn-default" data-dismiss="modal"
+                            aria-label="Close">
+                            <i class="ace-icon fa fa-times-circle-o"></i>
+                            <span class="bigger-110">ยกเลิก</span>
+                        </button>
+                    </fieldset>
+                    <fieldset class="col-xs-6 col-sm-6 col-md-6">
+                        <button type="submit" class="pull-left btn btn-sm btn-primary">
+                            <i class="ace-icon fa fa-save" aria-hidden="true"></i>
+                            <span class="bigger-110"> บันทึก</span>
+                        </button>
+                    </fieldset>
+                </div>
+            </form>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+<div class="modal fade" id="modal-upload-doc">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="formUpload" enctype="multipart/form-data" class="form-horizontal">
+                <div class="modal-header green">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h2 class="modal-title center">
+                        <i class="fa fa-upload" aria-hidden="true"></i>
+                        อัพโหลดไฟล์เอกสารยืนยัน
+                    </h2>
+                </div>
+                <div class="modal-body">
+                    <div class="form-heading" style="margin: 0 50px;">
+                        <h4>เงื่อนไขในการอัพโหลดไฟล์</h4>
+                        <ul>
+                            <li>
+                                ไฟล์ที่จะอัพโหลดขึ้นมาจะต้องเป็นไฟล์ชนิด PDF หรือ รูปภาพเท่านั้น
+                            </li>
+                            <li>
+                                เมื่อท่านอัพโหลดเอกสารยืนยันแล้ว จะไม่สามารถแก้ไขหรือเปลี่ยนแปลงข้อมูลได้
+                            </li>
+                            <li>
+                                ฉนั้นกรุณาตรวจสอบข้อมูลในเอกสารให้เรียบร้อยก่อนทำการกด
+                                "<i class="fa fa-cloud-upload" aria-hidden="true"></i>ยืนยันการอัพโหลด"
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="form-body center">
+                        <div class="pair-group" align="center">
+                            <div class="space-12"></div>
+                            <legend style="font-size:16px; color:#333">เลือกไฟล์เพื่ออัพโหลด :</legend>
+                            <div class="col-xs-8 col-sm-8 col-sm-offset-2">
+                                <label class="col-xs-6 col-sm-6">
+                                    <input [(ngModel)]="typeFileUpload" (change)="onChangeTypeFile(typeFileUpload)"
+                                        type="radio" name="sex" value="image/*" class="minimal-red">
+                                    ไฟล์รูปภาพ
+                                </label>
+                                <label class="ccol-xs-6 ol-sm-6">
+                                    <input [(ngModel)]="typeFileUpload" (change)="onChangeTypeFile(typeFileUpload)"
+                                        type="radio" name="sex" value=".pdf" class="minimal-red">
+                                    ไฟล์ PDF
+                                </label>
+                            </div>
+                            <span *ngIf="!uploading" id="bntUpload" class="form-group" [class.has-error]="hasMyfile">
+                                <input #myfile (change)="fileProgress(myfile.files)" type="file" name="myfile"
+                                    [accept]="typeFileUpload" class="btn btn-default" [multiple]="uploadMultiple"
+                                    required="required">
+                                <span *ngIf="hasMyfile" class="help-block col-xs-12 col-sm-reset inline">
+                                    {{ txtMyfileError || 'คุณไม่ได้เลือกไฟล์เพื่อ Upload' }}
+                                </span>
+                            </span>
+                            <div *ngIf="uploading" class="progress progress-striped active" style="width: 60%">
+                                <div class="progress-bar progress-bar-success" style="width: 100%"></div>
+                            </div>
+                            <div *ngIf="imgUrl && !hasMyfile && !uploading">
+                                <p *ngFor="let img of imgUrl">
+                                    <img *ngIf="fileType=='images'" style="border: dashed 2px black; padding: 2px;"
+                                        width="95%" [src]="img" alt="Product Image" />
+                                    <pdf-viewer *ngIf="fileType=='pdf'" [src]="img" [original-size]="false"
+                                        [show-borders]="true">
+                                    </pdf-viewer>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer center">
+                    <button (click)="onUpload()" id="btn-upload" type="submit" class="btn btn-sm btn-success">
+                        <i class="fa fa-cloud-upload" aria-hidden="true"></i>
+                        ยืนยันการอัพโหลด
+                    </button>
+                </div>
+            </form>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+<div *ngIf="imageOnline" class="modal fade" id="image-modal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content center" style="padding-bottom: 5px;">
+            <!--Modal body with image-->
+            <div class="modal-body">
+                <p *ngFor="let img of imgUrl">
+                    <img *ngIf="checkFileType(img)" style="border: dashed 2px black; padding: 2px;" width="100%"
+                        [src]="img+'?token='+accessToken" alt="Product Image" />
+                    <pdf-viewer *ngIf="!checkFileType(img)" [src]="pdfData" [original-size]="false"
+                        [show-borders]="true">
+                    </pdf-viewer>
+                </p>
+            </div>
+            <button type="button" class="btn btn-sm btn-default" data-dismiss="modal">
+                ปิด
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="personal-modal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content center" style="padding-bottom: 5px;">
+            <div class="modal-body">
+                <table class="table table-bordered table-hover table-striped headercenter">
+                    <thead>
+                        <tr>
+                            <th colspan="2">ผู้เขียนบันทึก</th>
+                        </tr>
+                        <tr>
+                            <th>ชื่อ-สกุล</th>
+                            <th>ตำแหน่ง</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let u of user">
+                            <td>{{ u.full_name }}</td>
+                            <td>{{ u.position }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <table *ngIf="along.length>0" class="table table-bordered table-hover table-striped headercenter">
+                    <thead>
+                        <tr>
+                            <th colspan="2">พร้อมด้วย</th>
+                        </tr>
+                        <tr>
+                            <th>ชื่อ-สกุล</th>
+                            <th>ตำแหน่ง</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let a of along">
+                            <td>{{ a.split('|')[0] }}</td>
+                            <td>{{ a.split('|')[1] }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <button type="button" class="btn btn-sm btn-default" data-dismiss="modal">
+                ปิด
+            </button>
+        </div>
+    </div>
+</div>
