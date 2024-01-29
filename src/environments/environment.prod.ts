@@ -1,6 +1,6 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://api.surin.moph.go.th',
+  apiUrl: 'https://apicpho.moph.go.th/cpm',
   tokenName: 'profile_token',
   passcodeName: 'passcode',
   adminTokenName: 'admin_token',
