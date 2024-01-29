@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { MainService } from 'src/app/services';
 
@@ -15,6 +15,7 @@ export class ActiveComponent implements OnInit {
   public txtError: string;
 
   constructor(
+    @Inject('HOSPITALNAMEEN') public hospitalNameEn: string,
     private route: ActivatedRoute,
     private main: MainService
   ) { }

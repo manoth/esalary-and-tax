@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { MainService } from 'src/app/services';
 
 @Component({
@@ -11,6 +11,7 @@ export class DashboardComponent implements OnInit {
   public decode: any;
 
   constructor(
+    @Inject('HOSPITALNAME') public hospitalName: string,
     private main: MainService
   ) { }
 
@@ -26,6 +27,13 @@ export class DashboardComponent implements OnInit {
 
   public get authGuard3() {
     return this.main.authGuard3;
+  }
+
+  toExternalApp() {
+    window.open(
+      `https://smartoffice-cpho.moph.go.th/sendbook/#/app/sb/login/token?token=${this.main.accessToken}`,
+      '_blank'
+    );
   }
 
 }

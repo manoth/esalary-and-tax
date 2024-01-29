@@ -7,26 +7,14 @@ import { SignComponent } from './pages/sign/sign.component';
 import { PageNotFoundComponent } from './pages/page-not-found/page-not-found.component';
 import { ActiveComponent } from './pages/active/active.component';
 import { SignOutComponent } from './pages/sign-out/sign-out.component';
-import { MeetingTodayComponent } from './contents/apps/meeting-today/meeting-today.component';
 
 // AuthGuard
-import { AuthGuard1 } from './helpers/auth.guard1'
-import { AuthGuard2 } from './helpers/auth.guard2'
-import { AuthGuard3 } from './helpers/auth.guard3'
+import { AuthGuard1 } from './helpers/auth.guard1';
 
 // Page login Dashboard & Apps
 import { DashboardComponent } from './contents/dashboard/dashboard.component';
-import { MeetingComponent } from './contents/apps/meeting/meeting.component';
 import { EsalaryComponent } from './contents/apps/esalary/esalary.component';
 import { TaxComponent } from './contents/apps/tax/tax.component';
-import { LetterComponent } from './contents/apps/letter/letter.component';
-import { EleaveComponent } from './contents/apps/eleave/eleave.component';
-import { GoToGovernmentComponent } from './contents/apps/go-to-government/go-to-government.component';
-
-// Page login Reports
-import { TimestampComponent } from './contents/reports/timestamp/timestamp.component';
-import { ScheduleComponent } from './contents/reports/schedule/schedule.component';
-import { LeaveComponent } from './contents/reports/leave/leave.component';
 
 // Page login Settings
 import { HospitalComponent } from './contents/settings/hospital/hospital.component';
@@ -40,10 +28,9 @@ const routes: Routes = [
   { path: 'signin/:signin', component: SignComponent },
   { path: 'signup', component: SignComponent },
   { path: 'signup/:signin', component: SignComponent },
-  { path: 'forgot', component: SignComponent },
   { path: 'signup/active/:token', component: ActiveComponent },
-  { path: 'apps/meeting/today', component: MeetingTodayComponent },
   { path: 'signout', component: SignOutComponent },
+  { path: 'forgot', component: SignComponent },
   {
     path: '', component: ContentComponent,
     canActivate: [AuthGuard1],
@@ -54,42 +41,10 @@ const routes: Routes = [
   },
   {
     path: 'apps', component: ContentComponent,
-    children: [
-      { path: 'meeting', component: MeetingComponent },
-    ]
-  },
-  {
-    path: 'apps', component: ContentComponent,
     canActivate: [AuthGuard1],
     children: [
       { path: 'esalary', component: EsalaryComponent },
       { path: 'tax', component: TaxComponent },
-    ]
-  },
-  {
-    path: 'apps', component: ContentComponent,
-    canActivate: [AuthGuard2],
-    children: [
-      { path: 'letter', component: LetterComponent },
-      { path: 'letter/:page', component: LetterComponent },
-    ]
-  },
-  {
-    path: 'apps', component: ContentComponent,
-    canActivate: [AuthGuard3],
-    children: [
-      { path: 'eleave', component: EleaveComponent },
-      { path: 'go-to-government', component: GoToGovernmentComponent },
-      { path: 'go-to-government/:page', component: GoToGovernmentComponent },
-    ]
-  },
-  {
-    path: 'reports', component: ContentComponent,
-    canActivate: [AuthGuard3],
-    children: [
-      { path: 'timestamp', component: TimestampComponent },
-      { path: 'schedule', component: ScheduleComponent },
-      { path: 'eleave', component: LeaveComponent },
     ]
   },
   {

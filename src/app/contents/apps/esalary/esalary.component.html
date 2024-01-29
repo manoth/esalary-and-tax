@@ -9,7 +9,7 @@
             ระบบพิมพ์สลิปเงินเดือนออนไลน์
         </h1>
         <p></p>
-        -:- สำนักงานสาธารณสุขจังหวัดชัยภูมิ -:-
+        -:- {{ hospitalName }} -:-
         <div [hidden]="!getPdf" class="row">
             <div class="space-6"></div>
             <div class="col-xs-4 col-sm-4 col-md-4 center">
@@ -38,13 +38,16 @@
                 <div class="space-6"></div>
                 <h4>@สวัสดี {{ decode.prename }}{{ decode.fname }} {{ decode.lname }}</h4>
             </div><!-- /.row -->
-            <div *ngIf="decode.hosptype=='01'" class="row">
+            <div class="row">
                 <div class="space-6"></div>
                 <span *ngIf="!adminPage">
-                    [ <a href="javascript:void(0);" (click)="staff()">สำหรับเจ้าหน้าที่</a> ]
+                    [ <a href="javascript:void(0);" (click)="staff()">ไปยังหน้านำเข้าข้อมูล</a> ]
                 </span>
                 <span *ngIf="adminPage">
                     [ <a href="javascript:void(0);" (click)="modalStaff()">นำเข้าข้อมูลเงินเดือน</a> ]
+                </span>
+                <span *ngIf="adminPage && adminLevel=='01'">
+                    [ <a href="javascript:void(0);" (click)="modalAddStaff()">เพิ่มผู้นำเข้าข้อมูล</a> ]
                 </span>
             </div><!-- /.row -->
             <div class="row">
@@ -58,7 +61,7 @@
                             <div class="space-6"></div>
                             <div *ngIf="adminPage" class="row center">
                                 <div class="space-6"></div>
-                                ​​​[ <a href="javascript:void(0);" (click)="logout()">ออกจาก Admin</a> ]
+                                ​​​[ <a href="javascript:void(0);" (click)="logoutAdmin()">ออกจาก Admin</a> ]
                                 <br>
                                 <label for="form-field-select-1"> เลขประจำตัวประชาชน: </label>
                                 <label class="block clearfix" style="margin:0 40px;">
@@ -181,8 +184,8 @@
                                     พนักงานราชการ
                                 </label>
                             </div>
-                            <div id="showText"></div>
-                            <div class="space-12"></div>
+                            <label>เลือกไฟล์เพื่อ Upload :</label>
+                            <!-- <div id="showText"></div> -->
                             <span *ngIf="!uploading" id="bntUpload" class="form-group" [class.has-error]="hasMyfile">
                                 <input #myfile (change)="fileProgress(myfile.files)" type="file" name="myfile"
                                     [accept]="(positiontype == '3') ? '.xlsx,.xls' : '.txt'" class="btn btn-default"
@@ -208,4 +211,113 @@
         <!-- /.modal-content -->
     </div>
     <!-- /.modal-dialog -->
+</div>
+
+<div class="modal fade" id="modal-add-staff" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content" style="padding-bottom: 5px;">
+            <div class="modal-header bg-primary">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h2 class="modal-title center">
+                    <i class="ace-icon fa fa fa-list"></i>
+                    รายชื่อผู้นำเข้าข้อมูลเงินเดือน และใบกำกับภาษี
+                </h2>
+            </div>
+            <div class="modal-body">
+                <div class="widget-box collapsed">
+                    <div class="widget-header">
+                        <h4 (click)="onFormAdd()" role="button" class="widget-title">
+                            <i class="fa fa-plus-square" aria-hidden="true"></i>
+                            เพิ่มผู้นำเข้าข้อมูล
+                        </h4>
+                        <div class="widget-toolbar">
+                            <a id="formAdd" href="#" data-action="collapse">
+                                <i class="ace-icon fa fa-chevron-down"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="widget-body" style="display: none;">
+                        <div class="widget-main text-center">
+                            <div class="row">
+                                <div class="col-xs-offset-2 col-xs-8">
+                                    <div class="form-group">
+                                        <label class="pull-left">เลือกหน่วยเบิกจ่าย: </label>
+                                        <select (change)="changeFinanceOffice(financeOffice)"
+                                            [(ngModel)]="financeOffice" style="text-align: center;" class="form-control"
+                                            name="financeoffice" id="financeoffice">
+                                            <option style="text-align: center;" *ngFor="let item of financeOfficeAll"
+                                                [value]="item.hospcode">
+                                                {{ item.hospname }}
+                                            </option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group" [class.has-error]="!adminCid">
+                                        <label class="pull-left" [class.red]="!adminCid">เลขประจำตัวประชาชน: </label>
+                                        <input style="text-align: center;" [(ngModel)]="adminCid" name="adminCid"
+                                            class="form-control" type="number" placeholder="เลขประจำตัวประชาชน">
+                                    </div>
+                                    <div class="form-group"
+                                        [class.has-error]="!adminPincode || (adminPincode && adminPincode?.length<6)">
+                                        <label class="pull-left"
+                                            [class.red]="!adminPincode || (adminPincode && adminPincode?.length<6)">
+                                            ตั้งรหัส PINCODE:
+                                        </label>
+                                        <input style="text-align: center;" [(ngModel)]="adminPincode"
+                                            name="adminPincode" class="form-control" type="text"
+                                            placeholder="จำนวน 6 หลักขึ้นไป">
+                                    </div>
+                                    <div class="form-group">
+                                        <button (click)="addStaff()" class="btn btn-sm btn-success" type="button">
+                                            <i class="ace-icon fa fa-save bigger-110"></i>
+                                            บันทึก
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="space-6"></div>
+                    <table class="table table-bordered table-hover table-striped headercenter">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>ชื่อ-สกุล</th>
+                                <th>หน่วยเบิกจ่าย</th>
+                                <th>ลบ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let item of adminList; let i=index;">
+                                <td class="text-center">{{ i+1 }}</td>
+                                <td>{{ item.pname }}{{ item.fname }} {{ item.lname }}</td>
+                                <td>{{ item.hospname }}</td>
+                                <td class="text-center">
+                                    <button *ngIf="decode.cid!=item.cid" (click)="delStaff(item)"
+                                        class="btn btn-xs btn-danger">
+                                        <i class="ace-icon fa fa-trash-o bigger-120"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tfoot *ngIf="adminList?.length==0">
+                            <tr>
+                                <td colspan="5" class="text-center">
+                                    ยังไม่มีผู้รับผิดชอบ ...
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer center">
+                <button type="button" class="btn btn-sm btn-default" data-dismiss="modal">
+                    ปิด
+                </button>
+            </div>
+        </div>
+    </div>
 </div>

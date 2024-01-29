@@ -39,9 +39,11 @@ export class TaxComponent implements OnInit {
   public uploading: boolean = false;
   public hasMyfile: boolean = false;
   public txtMyfileError: string;
+  public hasRadio: boolean = false;
 
   public decode: any;
   // public pincode: string;
+  public positiontype: string;
   public myfile: any;
   public pdfFile: any;
   public arrYear: any;
@@ -53,10 +55,20 @@ export class TaxComponent implements OnInit {
   public address: string = '';
   public disableAddress: boolean = false;
 
+  public financeOffice: string;
+  public financeOfficeType: string;
+  public financeOfficeAll: any[];
+  public adminLevel: string;
+  public adminList: any[];
+  public adminCid: string;
+  public adminPincode: string;
+
   public submit: boolean = false;
 
   constructor(
     @Inject('ADMINTOKEN_NAME') private adminTokenName: string,
+    @Inject('HOSPITALNAME') public hospitalName: string,
+    @Inject('ADDRESS') public hospitalAddress: string,
     public router: Router,
     public route: ActivatedRoute,
     public main: MainService,
@@ -79,6 +91,9 @@ export class TaxComponent implements OnInit {
     this.disableAddress = (cid) ? true : false;
     let admin = this.main.jwtDecodeAdmin(sessionStorage.getItem(this.adminTokenName));
     this.adminSystemType = (admin) ? admin.systemTypeAll : [];
+    this.financeOffice = admin.hospcode;
+    this.financeOfficeType = admin.hosptype;
+    this.adminLevel = admin.level;
     this.adminPage = (admin && this.main.in_array(this.systemType, this.adminSystemType)) ? true : false;
     this.main.post('tax/year', { cid: (cid) ? this.crypto.md5(cid) : false }).then((res: any) => {
       this.arrYear = (!res.ok) || res.data;
@@ -86,6 +101,10 @@ export class TaxComponent implements OnInit {
       (this.adminPage) ? this.getAddress(this.year) : null;
       this.loading = false;
     });
+  }
+
+  onRadio() {
+    this.hasRadio = false;
   }
 
   getAddress(year: string) {
@@ -137,11 +156,23 @@ export class TaxComponent implements OnInit {
     });
   }
 
+  getFinanceOffice() {
+    this.main.get('getcode/finance/office').then((res: any) => {
+      this.financeOfficeAll = (res.ok) ? res.data : [];
+    });
+  }
+
+  changeFinanceOffice(hospcode: string) {
+    const data = this.financeOfficeAll.filter(d => d.hospcode == hospcode)[0];
+    this.financeOffice = data.hospcode;
+    this.financeOfficeType = data.hosptype;
+  }
+
   modalStaff() {
     if (this.main.in_array(this.systemType, this.adminSystemType)) {
       $('#modal-staff').modal({ backdrop: 'static', keyboard: false });
     } else {
-      this.logout();
+      this.logoutAdmin();
       Swal.fire({
         icon: 'error',
         title: 'เสียใจด้วย !',
@@ -149,6 +180,97 @@ export class TaxComponent implements OnInit {
         allowOutsideClick: false
       });
     }
+  }
+
+  getListStaff() {
+    this.main.get('admin/user/list/01').then((res: any) => {
+      this.adminList = (res.ok) ? res.data : [];
+    });
+  }
+
+  modalAddStaff() {
+    if (this.main.in_array(this.systemType, this.adminSystemType)) {
+      this.getFinanceOffice();
+      this.getListStaff();
+      $('#modal-add-staff').modal({ backdrop: 'static', keyboard: false });
+    } else {
+      this.logoutAdmin();
+      Swal.fire({
+        icon: 'error',
+        title: 'เสียใจด้วย !',
+        text: 'คุณไม่ใช่ผู้ดูแลระบบ',
+        allowOutsideClick: false
+      });
+    }
+  }
+
+  delStaff(data: any) {
+    Swal.fire({
+      icon: 'question',
+      title: `คุณต้องการลบ!`,
+      text: `ข้อมูลของ ${data.pname}${data.fname} ${data.lname} ออกจากผู้นำเข้าข้อมูลหรือไม่?`,
+      showCancelButton: true,
+      confirmButtonText: 'ใช่',
+      cancelButtonText: 'ไม่ใช่',
+      showLoaderOnConfirm: false,
+      reverseButtons: true,
+      allowOutsideClick: false
+    }).then((result) => {
+      if (!result.dismiss) {
+        this.main.delete(`admin/user/systemId/01/cid/${data.cid}`, {}).then((res: any) => {
+          Swal.fire({
+            icon: (res.ok) ? 'success' : 'error',
+            title: (res.ok) ? 'ยินดีด้วย!' : 'เกิดข้อผิดพลาด !',
+            text: res.message,
+            allowOutsideClick: false
+          }).then(() => {
+            this.getListStaff();
+          });
+        });
+      }
+    });
+  }
+
+  addStaff() {
+    if (this.adminCid && this.adminPincode && this.financeOffice && this.adminPincode.length >= 6) {
+      let data = {
+        cid: this.adminCid, pincode: this.adminPincode,
+        hospcode: this.financeOffice, hosptype: this.financeOfficeType
+      }
+      this.main.post('admin/user/addUpdate/01', data).then((res: any) => {
+        Swal.fire({
+          icon: (res.ok) ? 'success' : 'error',
+          title: (res.ok) ? 'ยินดีด้วย!' : 'เกิดข้อผิดพลาด !',
+          text: res.message,
+          allowOutsideClick: false
+        }).then(() => {
+          this.getListStaff();
+        });
+        if (res.ok) {
+          this.onFormAdd();
+          this.adminCid = '';
+          this.adminPincode = '';
+        }
+      });
+    } else if (this.adminPincode && this.adminPincode.length < 6) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'เกิดข้อผิดพลาด !',
+        text: 'PINCODE น้อยกว่า 6 ตัวอักษร',
+        allowOutsideClick: false
+      });
+    } else {
+      Swal.fire({
+        icon: 'error',
+        title: 'เกิดข้อผิดพลาด !',
+        text: 'คุณกรอกข้อมูลยังไม่ครบ!',
+        allowOutsideClick: false
+      });
+    }
+  }
+
+  onFormAdd() {
+    $('#formAdd').click();
   }
 
   fileProgress(files: any) {
@@ -165,38 +287,49 @@ export class TaxComponent implements OnInit {
   }
 
   onUpload() {
-    this.hasMyfile = true;
-    if (this.myfile) {
-      const formData: FormData = new FormData();
-      formData.append('myfile', this.myfile);
-      this.uploading = true;
-      this.main.post(`tax/uploadfile?token=${sessionStorage.getItem(this.adminTokenName)}`, formData).then((res: any) => {
-        this.uploading = false;
-        this.hasMyfile = !res.ok;
-        this.txtMyfileError = res.txt;
-        // console.log(res);
-        if (res.ok) {
-          Swal.fire({
-            icon: 'success',
-            title: 'ยินดีด้วย !',
-            text: res.txt,
-            allowOutsideClick: false
-          }).then(() => {
-            $('#modal-staff').modal('hide');
-          })
-        } else {
-          Swal.fire({
-            icon: 'error',
-            title: 'เสียใจด้วย !',
-            text: res.txt,
-            allowOutsideClick: false
-          }).then(() => {
-            if (res.pincode) {
+    if (+this.positiontype > 0) {
+      this.hasMyfile = true;
+      if (this.myfile) {
+        const formData: FormData = new FormData();
+        formData.append('myfile', this.myfile);
+        formData.append('positiontype', this.positiontype);
+        this.uploading = true;
+        this.main.post(`tax/uploadfile?token=${sessionStorage.getItem(this.adminTokenName)}`, formData).then((res: any) => {
+          this.uploading = false;
+          this.hasMyfile = !res.ok;
+          this.txtMyfileError = res.txt;
+          // console.log(res);
+          if (res.ok) {
+            Swal.fire({
+              icon: 'success',
+              title: 'ยินดีด้วย !',
+              text: res.txt,
+              allowOutsideClick: false
+            }).then(() => {
               $('#modal-staff').modal('hide');
-              this.logout();
-            }
-          });
-        }
+            })
+          } else {
+            Swal.fire({
+              icon: 'error',
+              title: 'เสียใจด้วย !',
+              text: res.txt,
+              allowOutsideClick: false
+            }).then(() => {
+              if (res.pincode) {
+                $('#modal-staff').modal('hide');
+                this.logoutAdmin();
+              }
+            });
+          }
+        });
+      }
+    } else {
+      this.hasRadio = true;
+      Swal.fire({
+        icon: 'error',
+        title: 'เกิดข้อผิดพลาด !',
+        text: 'กรุณาเลือกประเภทการนำเข้าฐานข้อมูลด้วย.',
+        allowOutsideClick: false
       });
     }
   }
@@ -227,13 +360,13 @@ export class TaxComponent implements OnInit {
           allowOutsideClick: false
         });
         if (res.pincode) {
-          this.logout();
+          this.logoutAdmin();
         }
       }
     });
   }
 
-  logout() {
+  logoutAdmin() {
     sessionStorage.removeItem(this.adminTokenName);
     this.adminSystemType = [];
     this.cid = null;
@@ -617,8 +750,8 @@ export class TaxComponent implements OnInit {
                   { text: `${this.format_cid(data.department_id)}`, absolutePosition: { x: 319, y: 87 } },
                   { text: `0-0000-0000-0`, absolutePosition: { x: 465, y: 87 } },
                   { text: '', absolutePosition: { x: 430, y: 87 } },
-                  { text: `สำนักงานสาธารณสุขจังหวัดชัยภูมิ`, absolutePosition: { x: 70, y: 82 } },
-                  { text: 'เลขที่ 280 หมู่ 15 ถ.ชัยภูมิ-แก้งคร้อ ต.ในเมือง อ.เมืองชัยภูมิ จ.ชัยภูมิ 36000', absolutePosition: { x: 70, y: 111 } },
+                  { text: this.hospitalName, absolutePosition: { x: 70, y: 82 } },
+                  { text: `${this.hospitalAddress}`, absolutePosition: { x: 70, y: 111 } },
                 ]
               ]]]
             }, layout: borderTable,
@@ -670,7 +803,7 @@ export class TaxComponent implements OnInit {
                   { canvas: [{ type: 'rect', x: 0, y: 0, w: 16, h: 16, lineWidth: 0.3 }], absolutePosition: { x: 245, y: 249 } },
                   { canvas: [{ type: 'rect', x: 0, y: 0, w: 16, h: 16, lineWidth: 0.3 }], absolutePosition: { x: 325, y: 249 } },
                   { canvas: [{ type: 'rect', x: 0, y: 0, w: 16, h: 16, lineWidth: 0.3 }], absolutePosition: { x: 425, y: 249 } },
-                  { text: 'X', fontSize: 16, absolutePosition: { x: 330, y: 225 } },
+                  { text: 'X', fontSize: 16, absolutePosition: { x: 250, y: 225 } },
                   //==>
                   // { canvas: [{ type: 'rect', x: 0, y: 0, w: 16, h: 16, lineWidth: 0.3 }], absolutePosition: { x: 142, y: 675 } },
                   // { canvas: [{ type: 'rect', x: 0, y: 0, w: 16, h: 16, lineWidth: 0.3 }], absolutePosition: { x: 375, y: 675 } },
@@ -780,6 +913,7 @@ export class TaxComponent implements OnInit {
                     { text: 'กสจ. ', fontSize: 12, width: 100 },
                     { text: 'บาท ', fontSize: 12, width: 30 },
                     { text: 'กองทุนประกันสังคม ', fontSize: 12 },
+                    { text: `${data.social_fund || ''}`, fontSize: 12, width: 60 },
                     { text: 'บาท ', fontSize: 12, width: 30 }
                   ],
                 }

@@ -35,15 +35,7 @@ import { EsalaryComponent } from './contents/apps/esalary/esalary.component';
 import { TaxComponent } from './contents/apps/tax/tax.component';
 import { PositionComponent } from './contents/settings/position/position.component';
 import { SignOutComponent } from './pages/sign-out/sign-out.component';
-import { TimestampComponent } from './contents/reports/timestamp/timestamp.component';
-import { MeetingComponent } from './contents/apps/meeting/meeting.component';
 import { HospitalConfirmComponent } from './contents/settings/hospital-confirm/hospital-confirm.component';
-import { MeetingTodayComponent } from './contents/apps/meeting-today/meeting-today.component';
-import { ScheduleComponent } from './contents/reports/schedule/schedule.component';
-import { EleaveComponent } from './contents/apps/eleave/eleave.component';
-import { GoToGovernmentComponent } from './contents/apps/go-to-government/go-to-government.component';
-import { LetterComponent } from './contents/apps/letter/letter.component';
-import { LeaveComponent } from './contents/reports/leave/leave.component';
 
 @NgModule({
   declarations: [
@@ -67,15 +59,7 @@ import { LeaveComponent } from './contents/reports/leave/leave.component';
     TaxComponent,
     PositionComponent,
     SignOutComponent,
-    TimestampComponent,
-    MeetingComponent,
-    HospitalConfirmComponent,
-    MeetingTodayComponent,
-    ScheduleComponent,
-    EleaveComponent,
-    GoToGovernmentComponent,
-    LetterComponent,
-    LeaveComponent
+    HospitalConfirmComponent
   ],
   imports: [
     BrowserModule,
@@ -94,7 +78,12 @@ import { LeaveComponent } from './contents/reports/leave/leave.component';
     { provide: 'TOKENNAME', useValue: environment.tokenName },
     { provide: 'PASSCODENAME', useValue: environment.passcodeName },
     { provide: 'ADMINTOKEN_NAME', useValue: environment.adminTokenName },
-    { provide: 'DEFAULTPATH', useValue: environment.defaultPath }
+    { provide: 'DEFAULTPATH', useValue: environment.defaultPath },
+    { provide: 'HOSPITALNAME', useValue: environment.hospitalName },
+    { provide: 'HOSPITALNAMEEN', useValue: environment.hospitalNameEn },
+    { provide: 'PROVINCE', useValue: environment.province },
+    { provide: 'ADDRESS', useValue: environment.address },
+    { provide: 'OTHER', useValue: environment.other }
   ],
   bootstrap: [AppComponent]
 })

@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, Inject } from '@angular/core';
 import { Location } from '@angular/common';
 import { IMyDpOptions } from 'mydatepicker-thai';
 import { MainService, CryptoService } from 'src/app/services';
@@ -40,6 +40,7 @@ export class SignUpComponent implements OnInit {
   public hasImage: boolean = true;
 
   constructor(
+    @Inject('HOSPITALNAME') public hospitalName: string,
     public location: Location,
     public main: MainService,
     public crypto: CryptoService
@@ -377,7 +378,7 @@ export class SignUp {
   password: string;
   image: string;
   cid: string;
-  hospcode: string = '';
+  hospcode: string = '10702';
   pname: string = '';
   fname: string;
   lname: string;

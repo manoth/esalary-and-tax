@@ -36,35 +36,17 @@
     </div>
     <!-- /.sidebar-shortcuts -->
     <ul class="nav nav-list">
-        <li class="header" style="color: white; text-align: center;" *ngIf="authGuard2">
-            <i class="menu-icon fa fa-th"></i>
-            <span class="menu-text"> ระบบทดลองใช้</span>
-        </li>
-        <li routerLinkActive="active" *ngIf="authGuard2">
-            <a [routerLink]="['/apps/letter']">
-                <i class="menu-icon fa fa-book"></i>
-                <span class="menu-text"> หนังสือเวียนภายนอก </span>
-            </a>
-            <b class="arrow"></b>
-        </li>
-        <li routerLinkActive="active" *ngIf="authGuard3">
-            <a [routerLink]="['/apps/go-to-government']" style="font-size: 12px;">
-                <i class="menu-icon fa fa-send"></i>
-                <span class="menu-text" style="font-size: 11px;"> บันทึกขออนุมัติไปราชการ </span>
-            </a>
-            <b class="arrow"></b>
-        </li>
         <li class="header" style="color: white; text-align: center;">
             <i class="menu-icon fa fa-th"></i>
             <span class="menu-text"> ระบบต่างๆ </span>
         </li>
-        <li routerLinkActive="active">
+        <!-- <li routerLinkActive="active">
             <a [routerLink]="['/apps/meeting']" style="font-size: 12px;">
                 <i class="menu-icon fa fa-calendar"></i>
                 <span class="menu-text" style="font-size: 12px;"> จองห้องประขุมออนไลน์ </span>
             </a>
             <b class="arrow"></b>
-        </li>
+        </li> -->
         <li routerLinkActive="active">
             <a [routerLink]="['/apps/esalary']">
                 <i class="menu-icon fa fa-usd"></i>
@@ -76,53 +58,6 @@
             <a [routerLink]="['/apps/tax']" style="font-size: 11px;">
                 <i class="menu-icon fa fa-file-text-o"></i>
                 <span class="menu-text" style="font-size: 11px;"> หนังสือรับรองการหักภาษี </span>
-            </a>
-            <b class="arrow"></b>
-        </li>
-        <!-- <li routerLinkActive="active" *ngIf="authGuard2">
-            <a [routerLink]="['/apps/letter']">
-                <i class="menu-icon fa fa-book"></i>
-                <span class="menu-text"> หนังสือเวียนภายนอก </span>
-            </a>
-            <b class="arrow"></b>
-        </li> -->
-        <li routerLinkActive="active" *ngIf="authGuard3">
-            <a [routerLink]="['/apps/eleave']">
-                <i class="menu-icon fa fa-envelope"></i>
-                <span class="menu-text"> ยื่นใบลาออนไลน์ </span>
-            </a>
-            <b class="arrow"></b>
-        </li>
-        <!-- <li routerLinkActive="active" *ngIf="authGuard3">
-            <a [routerLink]="['/apps/go-to-government']" style="font-size: 11px;">
-                <i class="menu-icon fa fa-send"></i>
-                <span class="menu-text" style="font-size: 11px;"> หนังสือขออนุมัติไปราชการ </span>
-            </a>
-            <b class="arrow"></b>
-        </li> -->
-
-        <li class="header" style="color: white; text-align: center;" *ngIf="authGuard3">
-            <i class="menu-icon fa fa-bar-chart"></i>
-            <span class="menu-text"> รายงาน </span>
-        </li>
-        <li routerLinkActive="active" *ngIf="authGuard3">
-            <a [routerLink]="['/reports/timestamp']">
-                <i class="menu-icon fa fa-clock-o"></i>
-                <span class="menu-text"> ลงเวลาปฏิบัติงาน </span>
-            </a>
-            <b class="arrow"></b>
-        </li>
-        <li routerLinkActive="active" *ngIf="authGuard3">
-            <a [routerLink]="['/reports/schedule']">
-                <i class="menu-icon fa fa-calendar-check-o"></i>
-                <span class="menu-text"> ตารางรายชื่ออยู่เวร </span>
-            </a>
-            <b class="arrow"></b>
-        </li>
-        <li routerLinkActive="active" *ngIf="authGuard3">
-            <a [routerLink]="['/reports/eleave']">
-                <i class="menu-icon fa fa-line-chart"></i>
-                <span class="menu-text"> สถิติการลาออนไลน์ </span>
             </a>
             <b class="arrow"></b>
         </li>

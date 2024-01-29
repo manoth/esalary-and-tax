@@ -22,6 +22,8 @@ export class SignComponent implements OnInit {
   constructor(
     @Inject('TOKENNAME') private tokenName: string,
     @Inject('DEFAULTPATH') private defaultPath: string,
+    @Inject('HOSPITALNAME') public hospitalName: string,
+    @Inject('HOSPITALNAMEEN') public hospitalNameEn: string,
     private router: Router,
     private route: ActivatedRoute,
     private main: MainService,
